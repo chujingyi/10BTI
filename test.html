@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head>
+<body>
+<h3>API 测试</h3>
+<div id="out">请求中...</div>
+<script>
+const url = 'https://ecraezijjdukxybogrki.supabase.co/rest/v1/events?event=eq.quiz_complete&select=result_key&limit=3';
+const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjcmFlemlqamR1a3h5Ym9ncmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ1NzEsImV4cCI6MjA5MjEwMDU3MX0.GNw_SMG8trP8ouhbkkljv9fZk5B2VIXIpadYl6jDkBw';
+fetch(url, { headers: { 'apikey': key, 'Authorization': 'Bearer ' + key } })
+  .then(r => { document.getElementById('out').textContent = 'HTTP ' + r.status; return r.json(); })
+  .then(d => { document.getElementById('out').textContent += '\n' + JSON.stringify(d); })
+  .catch(e => { document.getElementById('out').textContent = 'ERROR: ' + e.message; });
+</script>
+</body></html>

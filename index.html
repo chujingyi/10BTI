@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>10BTI · 测出你和TEN的连接符号</title>
+  <meta property="og:title" content="10BTI · 测出你和TEN的连接符号">
+  <meta property="og:description" content="分享给你的小伙伴本测测吧">
+  <meta property="og:image" content="https://whimsical-halva-04746b.netlify.app/2.jpg">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg:       #0c071e;
+      --bg2:      #160c30;
+      --card:     rgba(255,255,255,0.05);
+      --border:   rgba(196,132,252,0.18);
+      --pl:       #c084fc;
+      --p:        #a855f7;
+      --pd:       #7c3aed;
+      --text:     #f3e8ff;
+      --sub:      #d8b4fe;
+      --muted:    #8b6aaa;
+    }
+
+    html, body {
+      height: 100%; overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse at 25% 15%, rgba(139,92,246,0.22) 0%, transparent 55%),
+        radial-gradient(ellipse at 75% 85%, rgba(168,85,247,0.14) 0%, transparent 55%);
+      color: var(--text);
+    }
+
+    /* ── stars ── */
+    .star {
+      position: fixed;
+      border-radius: 50%;
+      background: #fff;
+      pointer-events: none;
+      animation: twinkle var(--d) var(--delay) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0; transform: scale(.5); }
+      50%      { opacity: var(--op); transform: scale(1); }
+    }
+
+    /* ── pages ── */
+    .page {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center;
+      overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s ease;
+      z-index: 10;
+    }
+    .page.active { opacity: 1; pointer-events: all; }
+
+    /* ── shared inner ── */
+    .inner {
+      width: 100%; max-width: 430px;
+      padding: 0 20px;
+    }
+
+    /* ──────────────────────────────────────────
+       LANDING
+    ────────────────────────────────────────── */
+    #page-landing {
+      justify-content: flex-start;
+      padding-top: 52px;
+    }
+
+    .land-wrap {
+      text-align: center;
+      padding: 0 20px 52px;
+      max-width: 430px;
+      width: 100%;
+    }
+
+    /* hero image */
+    .land-hero {
+      position: relative;
+      width: 220px; height: 220px;
+      margin: 0 auto 18px;
+    }
+    .land-hero-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0 0 60px rgba(168,85,247,.35), 0 0 0 1px rgba(196,132,252,.3);
+    }
+    .land-hero-ring {
+      position: absolute; inset: -8px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(196,132,252,.25);
+      animation: spin 12s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+
+    .land-title {
+      font-size: 58px; font-weight: 800;
+      letter-spacing: 6px;
+      background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 55%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 2px;
+    }
+
+    .land-name-en {
+      font-size: 13px; letter-spacing: 3px;
+      color: var(--muted); text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .land-tagline {
+      font-size: 16px; font-weight: 600;
+      color: var(--text); line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .land-tagline b { color: var(--pl); }
+    .land-cat {
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 6px;
+      animation: float 2.8s ease-in-out infinite;
+    }
+
+    /* meta cards */
+    .land-meta-row {
+      display: flex; gap: 10px;
+      justify-content: center; margin-bottom: 10px;
+    }
+    .land-meta-card {
+      flex: 1; max-width: 155px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 8px;
+      font-size: 12px; color: var(--sub);
+      line-height: 1.7; text-align: center;
+    }
+    .land-meta-card .num {
+      display: block; font-size: 22px; font-weight: 700;
+      background: linear-gradient(135deg, #e9d5ff, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0; line-height: 1.2;
+    }
+    .land-meta-card .unit {
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--pd), var(--p));
+      color: #fff; border: none;
+      padding: 14px 50px; border-radius: 100px;
+      font-size: 16px; font-weight: 500;
+      letter-spacing: 2px; cursor: pointer;
+      box-shadow: 0 6px 28px rgba(168,85,247,.45);
+      transition: transform .15s, box-shadow .15s;
+      margin-top: 24px;
+    }
+    .btn-primary:active { transform: scale(.95); box-shadow: 0 3px 14px rgba(168,85,247,.3); }
+
+    /* ── copyright ── */
+    .copyright {
+      width: 100%;
+      text-align: center;
+      font-size: 10px;
+      color: rgba(139,106,170,.45);
+      letter-spacing: 1.5px;
+      padding: 12px 0 4px;
+    }
+
+    /* ──────────────────────────────────────────
+       QUIZ
+    ────────────────────────────────────────── */
+    #page-quiz { justify-content: center; }
+
+    .quiz-inner {
+      width: 100%; max-width: 430px;
+      padding: 24px 20px 20px;
+    }
+
+    .btn-back {
+      margin-top: 14px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 6px 2px;
+      letter-spacing: 0.5px;
+      transition: color .15s;
+    }
+    .btn-back:active { color: var(--sub); }
+
+    .prog-info {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 1px; margin-bottom: 8px;
+    }
+
+    .prog-track {
+      height: 2px; background: rgba(255,255,255,.07);
+      border-radius: 99px; overflow: hidden; margin-bottom: 24px;
+    }
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pd), var(--pl));
+      border-radius: 99px;
+      transition: width .45s cubic-bezier(.4,0,.2,1);
+    }
+
+    .q-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 26px 22px 22px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .q-num {
+      font-size: 10px; letter-spacing: 2px;
+      color: var(--pl); text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .q-dim {
+      font-size: 10px; letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 13px;
+    }
+    .q-dim em {
+      font-style: normal;
+      color: var(--sub);
+    }
+
+    .q-text {
+      font-size: 15px; color: var(--text);
+      line-height: 1.78; margin-bottom: 22px;
+    }
+
+    .opts { display: flex; flex-direction: column; gap: 9px; }
+
+    .opt-btn {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(196,132,252,.12);
+      border-radius: 13px;
+      padding: 13px 15px;
+      text-align: left; cursor: pointer;
+      font-size: 14px; color: var(--sub);
+      line-height: 1.55;
+      transition: background .15s, border-color .15s;
+      position: relative; overflow: hidden;
+    }
+    .opt-btn:active, .opt-btn.selected {
+      background: rgba(168,85,247,.18);
+      border-color: var(--p);
+      color: var(--text);
+    }
+    .opt-inner { display: flex; align-items: flex-start; gap: 0; }
+    .opt-lbl {
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px;
+      background: rgba(168,85,247,.22);
+      border-radius: 50%;
+      font-size: 11px; font-weight: 700;
+      color: var(--pl); margin-right: 10px;
+      margin-top: 1px;
+    }
+
+    /* ──────────────────────────────────────────
+       RESULT
+    ────────────────────────────────────────── */
+    #page-result { justify-content: flex-start; }
+
+    .result-inner {
+      width: 100%; max-width: 430px;
+      padding: 44px 20px 20px;
+    }
+
+    .res-tag {
+      text-align: center;
+      font-size: 10px; letter-spacing: 3px;
+      color: var(--muted); text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .res-emoji {
+      text-align: center;
+      font-size: 66px; margin-bottom: 10px;
+      animation: float 3.2s ease-in-out infinite;
+    }
+
+    .res-name {
+      text-align: center;
+      font-size: 28px; font-weight: 700;
+      background: linear-gradient(135deg, #e9d5ff, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 22px;
+    }
+
+    .res-desc {
+      font-size: 14px; color: var(--sub);
+      line-height: 1.9;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 18px;
+      margin-bottom: 22px;
+    }
+
+    /* ── 结果图片（圆形，底部） ── */
+    .res-img-wrap {
+      position: relative;
+      width: 180px; height: 180px;
+      margin: 0 auto 24px;
+    }
+    .res-img-ring {
+      position: absolute; inset: -8px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(196,132,252,.25);
+      animation: spin 12s linear infinite;
+    }
+    .res-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      border-radius: 50%;
+      display: block;
+      box-shadow: 0 0 50px rgba(168,85,247,.35), 0 0 0 1px rgba(196,132,252,.3);
+    }
+
+    /* ── 雷达图 ── */
+    .radar-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 16px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #radar-canvas {
+      width: 100% !important;
+      max-width: 300px;
+      height: auto !important;
+    }
+    .radar-legend {
+      margin-top: 14px;
+      width: 100%;
+      display: flex; flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px 14px;
+      font-size: 11px; line-height: 1.6;
+      color: var(--sub);
+    }
+    .radar-legend span { white-space: nowrap; }
+    .radar-legend em {
+      font-style: normal; font-weight: 700;
+      color: var(--pl); margin-right: 3px;
+    }
+    .radar-legend s {
+      text-decoration: none; color: var(--muted);
+    }
+    .res-desc-dual-label {
+      font-size: 11px; letter-spacing: 1.5px;
+      color: var(--pl); margin-bottom: 10px;
+    }
+    .res-desc-sep {
+      border: none; border-top: 1px solid rgba(196,132,252,.15);
+      margin: 16px 0;
+    }
+    .res-desc-name2 {
+      font-size: 12px; color: var(--pl);
+      letter-spacing: 1px; margin-bottom: 8px;
+    }
+
+    .section-lbl {
+      font-size: 10px; letter-spacing: 2.5px;
+      color: var(--muted); text-transform: uppercase;
+      text-align: center; margin-bottom: 14px;
+    }
+
+    /* ── dim-box (维度偏向 bar) ── */
+    .dim-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 16px 16px;
+      margin-bottom: 20px;
+    }
+    .dim-bars { display: flex; flex-direction: column; gap: 13px; }
+    .dim-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .dim-left {
+      text-align: right;
+      color: var(--sub);
+      white-space: nowrap;
+      display: flex; align-items: center;
+      justify-content: flex-end; gap: 3px;
+    }
+    .dim-left em {
+      font-style: normal; font-weight: 700;
+      color: var(--pl); font-size: 11px;
+    }
+    .dim-right {
+      text-align: left;
+      color: var(--sub);
+      white-space: nowrap;
+      display: flex; align-items: center;
+      justify-content: flex-start; gap: 3px;
+    }
+    .dim-right em {
+      font-style: normal; font-weight: 700;
+      color: var(--pl); font-size: 11px;
+    }
+    .dim-track {
+      position: relative;
+      height: 8px;
+      background: rgba(255,255,255,.06);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .dim-fill {
+      position: absolute;
+      top: 0; height: 100%;
+      border-radius: 99px;
+      transition: width 1s cubic-bezier(.4,0,.2,1), left 1s cubic-bezier(.4,0,.2,1);
+    }
+    .dim-fill.left-bias {
+      background: linear-gradient(to left, var(--pd), var(--pl));
+    }
+    .dim-fill.right-bias {
+      background: linear-gradient(to right, rgba(168,85,247,.6), rgba(99,102,241,.7));
+    }
+    .dim-track::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%; width: 1px;
+      background: rgba(255,255,255,.15);
+    }
+
+    .match-list {
+      display: flex; flex-direction: column; gap: 9px;
+      margin-bottom: 28px;
+    }
+    .match-item {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 13px;
+    }
+    .match-name {
+      width: 118px; flex-shrink: 0;
+      color: var(--sub); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .match-item.top .match-name { color: var(--pl); font-weight: 600; }
+    .match-track {
+      flex: 1; height: 5px;
+      background: rgba(255,255,255,.06);
+      border-radius: 99px; overflow: hidden;
+    }
+    .match-fill {
+      height: 100%; border-radius: 99px;
+      transition: width 1.1s cubic-bezier(.4,0,.2,1);
+    }
+    .match-item.top .match-fill {
+      background: linear-gradient(90deg, var(--pd), var(--pl));
+    }
+    .match-item:not(.top) .match-fill {
+      background: rgba(168,85,247,.35);
+    }
+    .match-pct {
+      width: 42px; text-align: right;
+      font-size: 12px; color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .actions {
+      display: flex; gap: 12px;
+    }
+    .btn-ghost {
+      flex: 1; background: transparent;
+      border: 1px solid rgba(196,132,252,.28);
+      color: var(--sub); padding: 13px;
+      border-radius: 100px; font-size: 14px;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-ghost:active { background: rgba(168,85,247,.1); }
+
+    .btn-fill {
+      flex: 1;
+      background: linear-gradient(135deg, var(--pd), var(--p));
+      border: none; color: #fff;
+      padding: 13px; border-radius: 100px;
+      font-size: 14px; cursor: pointer;
+      box-shadow: 0 4px 18px rgba(168,85,247,.38);
+      transition: transform .15s;
+    }
+    .btn-fill:active { transform: scale(.96); }
+
+    /* ── 分享面板 ── */
+    .share-panel {
+      position: fixed; inset: 0;
+      background: rgba(12,7,30,.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex; align-items: flex-end;
+      justify-content: center;
+    }
+    .share-panel-inner {
+      background: rgba(22,12,48,.98);
+      border: 1px solid rgba(196,132,252,.25);
+      border-radius: 24px 24px 0 0;
+      padding: 28px 24px 40px;
+      width: 100%; max-width: 430px;
+      display: flex; flex-direction: column;
+      gap: 10px;
+    }
+    .share-title {
+      text-align: center;
+      font-size: 11px; letter-spacing: 2px;
+      color: var(--muted); text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .share-btn {
+      width: 100%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(196,132,252,.18);
+      border-radius: 14px;
+      padding: 15px 18px;
+      color: var(--text);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex; align-items: center;
+      gap: 10px;
+      transition: background .15s, border-color .15s;
+    }
+    .share-btn:active {
+      background: rgba(168,85,247,.15);
+      border-color: var(--p);
+    }
+    .share-btn-icon {
+      font-size: 20px;
+    }
+    .share-panel-close {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 10px;
+      text-align: center;
+      margin-top: 4px;
+    }
+    .share-panel-close:active { color: var(--sub); }
+
+    /* ── toast ── */
+    .toast {
+      position: fixed; bottom: 72px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: rgba(124,58,237,.92);
+      color: #fff; padding: 10px 22px;
+      border-radius: 100px; font-size: 13px;
+      opacity: 0; transition: all .3s;
+      pointer-events: none; z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── 预览弹窗 ── */
+    .preview-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.88);
+      z-index: 200;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .preview-overlay img {
+      max-width: 100%;
+      max-height: 78vh;
+      border-radius: 12px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.5);
+      user-select: none;
+      -webkit-user-select: none;
+      pointer-events: auto;
+    }
+    .preview-hint {
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      margin-top: 14px;
+      letter-spacing: 1px;
+    }
+    .preview-close {
+      position: absolute;
+      top: 16px; left: 16px;
+      background: rgba(255,255,255,.12);
+      border: none; color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .preview-close:active { background: rgba(255,255,255,.25); }
+
+    /* ── 语言选择器 ── */
+    .lang-sel {
+      position: fixed; top: 16px; right: 16px; z-index: 9999;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(196,132,252,.25);
+      color: #d8b4fe; font-size: 12px; font-weight: 600;
+      padding: 5px 8px; border-radius: 20px;
+      cursor: pointer;
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .lang-sel option { background: #160c30; color: #f3e8ff; }
+
+    /* ── 留言框 ── */
+    .comment-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px 16px 16px;
+      margin-top: 28px;
+      margin-bottom: 20px;
+    }
+    .comment-box-title {
+      font-size: 10px; letter-spacing: 2.5px;
+      color: var(--muted); text-transform: uppercase;
+      text-align: center; margin-bottom: 12px;
+    }
+    .comment-textarea {
+      width: 100%;
+      min-height: 80px;
+      max-height: 200px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(196,132,252,.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      font-family: inherit;
+      transition: border-color .2s;
+    }
+    .comment-textarea::placeholder { color: var(--muted); }
+    .comment-textarea:focus { border-color: rgba(168,85,247,.45); }
+    .comment-submit-row {
+      display: flex; justify-content: flex-end;
+      margin-top: 10px; gap: 10px;
+    }
+    .btn-comment {
+      background: linear-gradient(135deg, var(--pd), var(--p));
+      border: none; color: #fff;
+      padding: 10px 24px; border-radius: 100px;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(168,85,247,.35);
+      transition: transform .15s;
+    }
+    .btn-comment:active { transform: scale(.95); }
+    .btn-comment:disabled {
+      opacity: .45;
+      pointer-events: none;
+    }
+    .comment-char-count {
+      font-size: 11px;
+      color: var(--muted);
+      align-self: center;
+      flex: 1;
+      text-align: left;
+    }
+
+    /* ── 历史 & 统计 按钮行 ── */
+    .extra-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+      margin-bottom: 0;
+    }
+    .btn-extra {
+      flex: 1;
+      padding: 11px 8px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform .15s, background .2s;
+      border: 1px solid rgba(196,132,252,.3);
+      background: rgba(196,132,252,.08);
+      color: var(--sub);
+      text-align: center;
+    }
+    .btn-extra:active { transform: scale(.95); }
+    .btn-extra.active {
+      background: rgba(196,132,252,.18);
+      border-color: rgba(196,132,252,.5);
+      color: #e9d5ff;
+    }
+
+    /* ── 历史记录面板 ── */
+    .history-panel {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .history-panel.open { display: block; }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .history-table th {
+      text-align: left;
+      padding: 6px 10px;
+      color: var(--muted);
+      font-weight: 500;
+      border-bottom: 1px solid rgba(196,132,252,.15);
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+    .history-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(196,132,252,.07);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table .td-time {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      width: 150px;
+    }
+    .history-table .td-result {
+      font-weight: 600;
+      color: var(--sub);
+    }
+    .history-empty {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .history-loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 语言切换 -->
+<select class="lang-sel" id="lang-sel" onchange="switchLang(this.value)">
+  <option value="zh" selected>中文</option>
+  <option value="en">EN</option>
+  <option value="ko">한국어</option>
+  <option value="th">ไทย</option>
+</select>
+
+<!-- ── LANDING ── -->
+<div id="page-landing" class="page active">
+  <div class="land-wrap">
+    <div class="land-hero">
+      <div class="land-hero-ring"></div>
+      <img class="land-hero-img" src="1.jpg" alt="TEN">
+    </div>
+    <div class="land-cat">&#x1F431;</div>
+    <div class="land-title">10BTI</div>
+    <div class="land-name-en">Ten Behavioral Type Indicator</div>
+    <div class="land-tagline" data-i18n="tagline">你是哪一种追星方式？<br>测一测你和TEN之间的<b>连接符号</b></div>
+    <div class="land-meta-row">
+      <div class="land-meta-card">
+        <span class="num">20</span>
+        <span class="unit" data-i18n="meta_q">道题</span>
+      </div>
+      <div class="land-meta-card">
+        <span class="num">6</span>
+        <span class="unit" data-i18n="meta_dim">个维度</span>
+      </div>
+    </div>
+    <div class="land-meta-row">
+      <div class="land-meta-card">
+        <span class="num">6</span>
+        <span class="unit" data-i18n="meta_axis">个量化轴</span>
+      </div>
+      <div class="land-meta-card">
+        <span class="num">6</span>
+        <span class="unit" data-i18n="meta_result">种结果</span>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startQuiz()" data-i18n="start_btn">开始测试</button>
+  </div>
+  <div class="copyright">all rights reserved by HiTOMi</div>
+</div>
+
+<!-- ── QUIZ ── -->
+<div id="page-quiz" class="page">
+  <div class="quiz-inner">
+    <div class="prog-info">
+      <span id="prog-label">1 / 20</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+    <div class="q-card">
+      <div class="q-num" id="q-num">Q01</div>
+      <div class="q-dim" id="q-dim"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+    <button class="btn-back" id="btn-back" onclick="goBack()" style="display:none" data-i18n="prev_q">&#x2190; 上一题</button>
+  </div>
+  <div class="copyright">all rights reserved by HiTOMi</div>
+</div>
+
+<!-- ── RESULT ── -->
+<div id="page-result" class="page">
+  <div class="result-inner">
+    <div class="res-tag" data-i18n="res_tag">你和TEN的连接符号</div>
+    <div class="res-emoji" id="res-emoji"></div>
+    <div class="res-name"  id="res-name"></div>
+
+    <div class="res-desc"  id="res-desc"></div>
+
+    <!-- 雷达图 -->
+    <div class="radar-box">
+      <div class="section-lbl" data-i18n="radar_title">追 星 画 像</div>
+      <canvas id="radar-canvas" width="320" height="320"></canvas>
+      <div class="radar-legend" id="radar-legend"></div>
+    </div>
+
+    <div class="dim-box">
+      <div class="section-lbl" data-i18n="dim_title">维度偏向</div>
+      <div class="dim-bars" id="dim-bars"></div>
+    </div>
+
+    <!-- 结果图片（圆形，在按钮上方） -->
+    <div class="res-img-wrap" id="res-img-wrap">
+      <div class="res-img-ring"></div>
+      <img class="res-img" id="res-img" src="" alt="">
+    </div>
+
+    <!-- 分享面板 -->
+    <div class="share-panel" id="share-panel" style="display:none">
+      <div class="share-panel-inner">
+        <div class="share-title" data-i18n="share_title">分享方式</div>
+        <button class="share-btn" onclick="copyShareLink()">
+          <span class="share-btn-icon">&#x1F517;</span>
+          <span data-i18n="share_link">分享链接</span>
+        </button>
+        <button class="share-btn" onclick="generateShareImg()">
+          <span class="share-btn-icon">&#x1F5BC;</span>
+          <span data-i18n="share_img">生成分享图片</span>
+        </button>
+        <button class="share-panel-close" onclick="closeSharePanel()" data-i18n="cancel">取消</button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-ghost" onclick="retake()" data-i18n="retake">再测一次</button>
+      <button class="btn-fill"  onclick="openSharePanel()" data-i18n="share_btn">分享结果</button>
+    </div>
+
+    <!-- 历史 & 统计 按钮行 -->
+    <div class="extra-actions">
+      <button class="btn-extra" id="btn-history" onclick="toggleHistory()" data-i18n="btn_history">📋 个人历史结果</button>
+      <button class="btn-extra" onclick="openDashboard()" data-i18n="btn_dashboard">📊 查看统计数据</button>
+    </div>
+
+    <!-- 历史记录展开面板 -->
+    <div class="history-panel" id="history-panel">
+      <div class="history-loading" id="history-loading" data-i18n="history_loading">加载中…</div>
+      <table class="history-table" id="history-table" style="display:none">
+        <thead><tr><th data-i18n="history_time">测试时间</th><th data-i18n="history_result_col">结果</th></tr></thead>
+        <tbody id="history-tbody"></tbody>
+      </table>
+      <div class="history-empty" id="history-empty" style="display:none" data-i18n="history_empty">暂无历史记录</div>
+    </div>
+
+    <!-- 留言框 -->
+    <div class="comment-box" id="comment-box">
+      <div class="comment-box-title" data-i18n="comment_title">留 言 板</div>
+      <textarea class="comment-textarea" id="comment-textarea" data-i18n="comment_placeholder" placeholder="收集留言反馈，请多多支持～" maxlength="500"></textarea>
+      <div class="comment-submit-row">
+        <span class="comment-char-count" id="comment-char-count">0 / 500</span>
+        <button class="btn-comment" id="comment-submit" onclick="submitComment()" data-i18n="comment_submit">提交留言</button>
+      </div>
+    </div>
+
+    <!-- 作者声明 -->
+    <div class="copyright">all rights reserved by HiTOMi</div>
+  </div>
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 预览弹窗容器（动态插入） -->
+<div id="preview-overlay" class="preview-overlay" style="display:none">
+  <button class="preview-close" onclick="closePreview()">&times;</button>
+  <img id="preview-img" src="" alt="分享长图">
+  <div class="preview-hint" data-i18n="preview_hint">长按图片保存到相册</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   I18N 国际化
+══════════════════════════════════════════════ */
+let _lang = 'zh'; // 'zh' | 'en' | 'ko' | 'th'
+
+const _T = {
+  tagline:     { zh: '你是哪一种追星方式？<br>测一测你和TEN之间的<b>连接符号</b>', en: 'What kind of TEN stan are you?<br>Discover your <b>connection symbol</b> with TEN', ko: '어떤 유형의 텐 팬일까요?<br>텐과의 <b>연결 심볼</b>을 알아보세요', th: 'คุณเป็นแฟน เตนล์ สไตล์ไหน?<br>ค้นพบ <b>สัญลักษณ์แห่งการเชื่อมโยง</b> ระหว่างคุณกับ เตนล์' },
+  meta_q:      { zh: '道题', en: ' Questions', ko: '문항', th: 'ข้อ' },
+  meta_dim:    { zh: '个维度', en: ' Dimensions', ko: '차원', th: 'มิติ' },
+  meta_axis:   { zh: '个量化轴', en: ' Scales', ko: '척도', th: 'มาตรวัด' },
+  meta_result: { zh: '种结果', en: ' Results', ko: '결과', th: 'ผลลัพธ์' },
+  start_btn:   { zh: '开始测试', en: 'Start Quiz', ko: '테스트 시작', th: 'เริ่มทำแบบทดสอบ' },
+  prev_q:      { zh: '\u2190 上一题', en: '\u2190 Previous', ko: '\u2190 이전', th: '\u2190 ก่อนหน้า' },
+  res_tag:     { zh: '你和TEN的连接符号', en: 'Your Connection Symbol with TEN', ko: '텐과의 연결 심볼', th: 'สัญลักษณ์แห่งการเชื่อมโยงระหว่างคุณกับ เตนล์' },
+  radar_title: { zh: '追 星 画 像', en: 'FAN  PORTRAIT', ko: '팬  프로필', th: 'แฟน  โปรไฟล์' },
+  dim_title:   { zh: '维度偏向', en: 'Dimension Bias', ko: '차원 편향', th: 'อคติมิติ' },
+  share_title: { zh: '分享方式', en: 'Share', ko: '공유', th: 'แชร์' },
+  share_link:  { zh: '分享链接', en: 'Share Link', ko: '링크 공유', th: 'แชร์ลิงก์' },
+  share_img:   { zh: '生成分享图片', en: 'Share Image', ko: '이미지 생성', th: 'สร้างรูปภาพแชร์' },
+  cancel:      { zh: '取消', en: 'Cancel', ko: '취소', th: 'ยกเลิก' },
+  retake:      { zh: '再测一次', en: 'Retake', ko: '다시 하기', th: 'ทำอีกครั้ง' },
+  share_btn:   { zh: '分享结果', en: 'Share Result', ko: '결과 공유', th: 'แชร์ผลลัพธ์' },
+  preview_hint:{ zh: '长按图片保存到相册', en: 'Long press to save image', ko: '이미지를 길게 눌러 저장', th: 'กดค้างที่รูปเพื่อบันทึก' },
+  toast_copy:  { zh: '已复制链接，可以发给朋友测试 ✨', en: 'Link copied! Send it to friends ✨', ko: '링크가 복사되었어요! 친구에게 보내보세요 ✨', th: 'คัดลอกลิงก์แล้ว! ส่งให้เพื่อนลองทำดู ✨' },
+  toast_copy_fail:{ zh: '复制失败，请手动复制', en: 'Copy failed, please copy manually', ko: '복사 실패, 수동으로 복사해 주세요', th: 'คัดลอกไม่สำเร็จ กรุณาคัดลอกเอง' },
+  toast_gen:   { zh: '正在生成长图...', en: 'Generating image...', ko: '이미지 생성 중...', th: 'กำลังสร้างรูปภาพ...' },
+  toast_gen_fail:{ zh: '生成失败，请尝试截图分享', en: 'Failed, try screenshot instead', ko: '생성 실패, 스크린샷으로 공유해 주세요', th: 'สร้างไม่สำเร็จ ลองจับภาพหน้าจอแชร์' },
+  toast_dual:  { zh: '你身上同时存在两种很强的倾向', en: 'You have two equally strong tendencies', ko: '두 가지 강한 성향이 동시에 존재해요', th: 'คุณมีแนวโน้มที่แข็งแกร่งสองแบบผสมกันอยู่' },
+  // 维度标签（结果页+截图用）
+  dim_IO:      { zh: '认知入口', en: 'Perception', ko: '인지 경로', th: 'การรับรู้' },
+  dim_CD:      { zh: '情感距离', en: 'Emotional Distance', ko: '감정 거리', th: 'ระยะทางอารมณ์' },
+  dim_LP:      { zh: '欣赏方式', en: 'Appreciation', ko: '감상 방식', th: 'วิธีชื่นชม' },
+  dim_IA:      { zh: '感受模式', en: 'Feeling Mode', ko: '느낌 모드', th: 'โหมดการรู้สึก' },
+  dim_PS:      { zh: '守护姿态', en: 'Protection', ko: '보호 태도', th: 'ท่าทีปกป้อง' },
+  dim_PO:      { zh: '情感归属', en: 'Attachment', ko: '애착', th: 'ความผูกพัน' },
+  // 维度两端
+  dim_IO_L:    { zh: '内在', en: 'Internal', ko: '내면적', th: 'ภายใน' },
+  dim_IO_R:    { zh: '外在', en: 'External', ko: '외면적', th: 'ภายนอก' },
+  dim_CD_L:    { zh: '亲密感', en: 'Intimate', ko: '친밀감', th: 'ใกล้ชิด' },
+  dim_CD_R:    { zh: '距离感', en: 'Distant', ko: '거리감', th: 'ห่างเหิน' },
+  dim_LP_L:    { zh: '生活感', en: 'Casual', ko: '일상적', th: 'ชีวิตประจำวัน' },
+  dim_LP_R:    { zh: '专业性', en: 'Professional', ko: '전문적', th: 'มืออาชีพ' },
+  dim_IA_L:    { zh: '沉浸式', en: 'Immersive', ko: '몰입형', th: 'ดื่มด่ำ' },
+  dim_IA_R:    { zh: '分析式', en: 'Analytical', ko: '분석형', th: 'วิเคราะห์' },
+  dim_PS_L:    { zh: '个人欣赏', en: 'Personal', ko: '개인적', th: 'ส่วนตัว' },
+  dim_PS_R:    { zh: '大众分享', en: 'Social', ko: '사회적', th: 'สังคม' },
+  dim_PO_L:    { zh: '有占有欲', en: 'Possessive', ko: '소유욕', th: 'อยากเป็นของเขา' },
+  dim_PO_R:    { zh: '给他自由', en: 'Let him free', ko: '자유롭게', th: 'ให้เขาเสรี' },
+  // 截图 footer
+  footer_line1: { zh: '10BTI · Ten Behavioral Type Indicator', en: '10BTI · Ten Behavioral Type Indicator', ko: '10BTI · Ten Behavioral Type Indicator', th: '10BTI · Ten Behavioral Type Indicator' },
+  footer_line2: { zh: '长按保存图片 · 扫码直接测试', en: 'Long press to save · Scan to take the quiz', ko: '길게 눌러 저장 · QR 스캔으로 테스트', th: 'กดค้างเพื่อบันทึก · สแกนเพื่อทำแบบทดสอบ' },
+  // 截图头部
+  snap_tagline: { zh: '你和TEN的连接符号', en: 'Your Connection Symbol with TEN', ko: '텐과의 연결 심볼', th: 'สัญลักษณ์แห่งการเชื่อมโยงระหว่างคุณกับ เตนล์' },
+  snap_dim:     { zh: '维 度 偏 向', en: 'DIMENSION BIAS', ko: '차 원  편 향', th: 'อ ค ติ  มิ ติ' },
+  snap_radar:   { zh: '追 星 画 像', en: 'FAN  PORTRAIT', ko: '팬  프로필', th: 'แฟน  โปรไฟล์' },
+  // 留言框
+  comment_title:    { zh: '留 言 板', en: 'MESSAGE BOARD', ko: '메시지 보드', th: 'กระดานข้อความ' },
+  comment_placeholder: { zh: '收集留言反馈，请多多支持～', en: 'Leave your feedback, thanks for your support~', ko: '의견을 남겨주세요, 감사합니다~', th: 'แสดงความคิดเห็น ขอบคุณสำหรับการสนับสนุน~' },
+  comment_submit:   { zh: '提交留言', en: 'Submit', ko: '등록', th: 'ส่งข้อความ' },
+  toast_comment_ok: { zh: '留言提交成功 ✨', en: 'Message submitted! ✨', ko: '메시지가 등록되었어요! ✨', th: 'ส่งข้อความเรียบร้อย! ✨' },
+  toast_comment_fail:{ zh: '提交失败，请稍后再试', en: 'Failed, please try again later', ko: '등록 실패, 나중에 다시 시도해 주세요', th: 'ส่งไม่สำเร็จ ลองอีกครั้ง' },
+  toast_comment_empty:{ zh: '请先写点内容再提交', en: 'Please write something first', ko: '먼저 내용을 작성해 주세요', th: 'กรุณาเขียนอะไรสักหน่อยก่อน' },
+  // 历史记录 & 统计按钮
+  btn_history:    { zh: '📋 个人历史结果', en: '📋 My History', ko: '📋 나의 기록', th: '📋 ประวัติของฉัน' },
+  btn_dashboard:  { zh: '📊 查看统计数据', en: '📊 View Stats', ko: '📊 통계 보기', th: '📊 ดูสถิติ' },
+  history_time:   { zh: '测试时间', en: 'Time', ko: '테스트 시간', th: 'เวลาทดสอบ' },
+  history_result_col: { zh: '结果', en: 'Result', ko: '결과', th: 'ผลลัพธ์' },
+  history_loading:{ zh: '加载中…', en: 'Loading…', ko: '로딩 중…', th: 'กำลังโหลด…' },
+  history_empty:  { zh: '暂无历史记录', en: 'No history yet', ko: '기록이 없습니다', th: 'ยังไม่มีประวัติ' },
+};
+
+function t(key) { return _T[key] ? _T[key][_lang] || _T[key].zh : key; }
+
+function applyLang() {
+  // 更新所有 data-i18n 标记的元素
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    const v = t(k);
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = v;
+    else el.innerHTML = v;
+  });
+  // 更新语言选择器
+  document.getElementById('lang-sel').value = _lang;
+  // 如果在答题中，重新渲染当前题
+  if (ans.length > 0 && cur < Q.length) renderQ();
+  // 如果当前在结果页，重新展示结果
+  if (_shareData && document.getElementById('page-result').classList.contains('active')) showResult();
+  // 重渲染历史记录表格行（结果名多语言）
+  renderHistoryRows();
+}
+
+function switchLang(lang) {
+  _lang = lang;
+  applyLang();
+}
+
+/* ══════════════════════════════════════════════
+   SUPABASE 埋点（微信兼容版）
+   用 navigator.sendBeacon + fetch 双保险，微信也能用
+══════════════════════════════════════════════ */
+const _SB_URL = 'https://ecraezijjdukxybogrki.supabase.co/rest/v1/events';
+const _SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjcmFlemlqamR1a3h5Ym9ncmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ1NzEsImV4cCI6MjA5MjEwMDU3MX0.GNw_SMG8trP8ouhbkkljv9fZk5B2VIXIpadYl6jDkBw';
+
+function track(event, extra = {}) {
+  // sendBeacon 不支持自定义 headers，无法通过 Supabase 鉴权，会静默丢失。
+  // 统一用 fetch + keepalive：支持自定义 headers，页面关闭时也能继续发送。
+  const payload = JSON.stringify({
+    event,
+    result_key: extra.resultKey || null,
+    match_pct:  extra.matchPct  || null,
+    profile:    extra.profile    || null,
+    lang: _lang,
+    ua: navigator.userAgent,
+    ref: document.referrer || null
+  });
+
+  fetch(_SB_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': _SB_KEY,
+      'Authorization': 'Bearer ' + _SB_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: payload,
+    keepalive: true
+  }).catch(() => {}); // 静默忽略网络错误，不影响用户体验
+}
+
+/* ══════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════ */
+
+// 维度 HTML 标签（含 <em> 标签）
+function dimLabel(dimCode) {
+  const map = {
+    A: { zh: '<em>A</em>｜连接介质  你通过什么和 TEN 产生连接？', en: '<em>A</em>｜Connection Medium — How do you connect with TEN?', ko: '<em>A</em>｜연결 매체 — 텐과 어떻게 연결되나요?', th: '<em>A</em>｜สื่อแห่งการเชื่อมโยง — คุณเชื่อมโยงกับ เตนล์ ผ่านอะไร?' },
+    B: { zh: '<em>B</em>｜你追的 TEN 在哪个频道  TEN 有极强的多面性，你最爱哪一面？', en: '<em>B</em>｜Which TEN — TEN is multidimensional. Which side do you love most?', ko: '<em>B</em>｜어떤 텐 — 텐은 다면적이다. 가장 사랑하는 면은?', th: '<em>B</em>｜เตนล์ ที่ไหน — เตนล์ มีหลายมิติ ด้านไหนที่คุณรักมากที่สุด?' },
+    C: { zh: '<em>C</em>｜你如何处理喜欢 TEN 这件事  你对他的感受，你怎么消化？', en: '<em>C</em>｜Processing — How do you process your feelings for TEN?', ko: '<em>C</em>｜소화 — 텐에 대한 감정을 어떻게 소화하나요?', th: '<em>C</em>｜การย่อย — คุณย่อยความรู้สึกที่มีต่อ เตนล์ ยังไง?' },
+    D: { zh: '<em>D</em>｜TEN 身上哪个矛盾最戳你  他的哪个「反差」让你最着迷？', en: '<em>D</em>｜Contradiction — Which contrast of his fascinates you most?', ko: '<em>D</em>｜모순 — 그의 어떤 대비가 당신을 사로잡나요?', th: '<em>D</em>｜ความขัดแย้ง — ด้านไหนของเขาที่ดูขัดแย้งกลับดึงดูดคุณมากที่สุด?' },
+    E: { zh: '<em>E</em>｜你的保护欲方向  你对 TEN 的爱，指向哪里？', en: '<em>E</em>｜Protection — Where does your love for TEN point?', ko: '<em>E</em>｜보호 — 텐을 향한 사랑은 어디를 향하나요?', th: '<em>E</em>｜การปกป้อง — ความรักของคุณที่มีต่อ เตนล์ มุ่งไปที่ไหน?' },
+    F: { zh: '<em>F</em>｜你在 TEN 身上投射的是什么  你在 TEN 身上看见了什么？', en: '<em>F</em>｜Projection — What do you see in TEN?', ko: '<em>F</em>｜투영 — 텐에게서 무엇을 보나요?', th: '<em>F</em>｜การสะท้อน — คุณเห็นอะไรในตัว เตนล์?' },
+  };
+  return map[dimCode] ? map[dimCode][_lang] || map[dimCode].zh : '';
+}
+
+const Q = [
+  {
+    dim: 'A',
+    d_zh: "<em>A</em>｜连接介质  你通过什么和 TEN 产生连接？",
+    d_en: "<em>A</em>｜Connection Medium — How do you connect with TEN?",
+    d_ko: "<em>A</em>｜연결 매체 — 텐과 어떻게 연결되나요?",
+    d_th: "<em>A</em>｜สื่อแห่งการเชื่อมโยง — คุณเชื่อมโยงกับ เตนล์ ผ่านอะไร?",
+    t_zh: "TEN 发了一条练习室视频，没有音乐，只有他在镜子前反复做同一个动作，袖子卷起来，额发湿着。你第一反应是：",
+    t_en: "TEN posts a practice room video — no music, just him repeating the same move in front of a mirror, sleeves rolled up, bangs damp. Your first reaction:",
+    t_ko: "텐이 연습실 영상을 올렸다. 음악 없이, 거울 앞에서 같은 동작을 반복하고, 소매를 걷고, 앞머리가 젖은 채로. 첫 반응은:",
+    t_th: "เตนล์ โพสต์คลิปห้องซ้อม — ไม่มีเพลง เพียงเขาทำท่าเดิมซ้ำๆ ต่อหน้ากระจก เสื้อยกขึ้น ผมหน้าเปียก ปฏิกิริยาแรกของคุณคือ:",
+    o: [
+      { t_zh: "盯着他性感的地方看了很久，暂停，再看", t_en: "Stared at his sexy parts for a long time, paused, watched again", t_ko: "섹시한 부분을 오래 쳐다보고, 일시정지하고, 다시 봤다", t_th: "จ้องส่วนเซ็กซี่ของเขานานๆ หยุดชั่วครู่ แล้วดูใหม่", s: [2,4,5,5,3,4] },
+      { t_zh: "循环播放，一遍遍看，停不下来", t_en: "Put it on loop, watched over and over, couldn't stop", t_ko: "루프로 돌려서 계속 봤다, 멈출 수가 없었다", t_th: "เล่นซ้ำอยู่ ดูซ้ำไปเรื่อยๆ หยุดไม่ได้", s: [4,2,2,2,2,2] },
+      { t_zh: "疯狂截图修图，发超话", t_en: "Screenshotted like crazy, edited photos, posted on super topic", t_ko: "미친 듯이 캡처하고 보정해서 올렸다", t_th: "จับภาพบ้า แต่งรูป โพสต์ซุปเปอร์ท็อปิก", s: [5,1,1,1,5,1] },
+      { t_zh: "划到评论区，看大家在说什么，顺便数转发量", t_en: "Scrolled to comments, read what everyone's saying, counted reposts", t_ko: "댓글로 가서 다들 뭘 말하는지 보고, 리포스트 수도 셨다", t_th: "เลื่อนไปคอมเมนต์ ดูคนอื่นพูดอะไร นับจำนวนรีโพสต์ด้วย", s: [1,5,4,4,1,5] }
+    ]
+  },
+  {
+    dim: 'A',
+    d_zh: "<em>A</em>｜连接介质  你通过什么和 TEN 产生连接？",
+    d_en: "<em>A</em>｜Connection Medium — How do you connect with TEN?",
+    d_ko: "<em>A</em>｜연결 매체 — 텐과 어떻게 연결되나요?",
+    d_th: "<em>A</em>｜สื่อแห่งการเชื่อมโยง — คุณเชื่อมโยงกับ เตนล์ ผ่านอะไร?",
+    t_zh: "你在街上偶遇了 TEN。你会：",
+    t_en: "You ran into TEN on the street. You would:",
+    t_ko: "거리에서 텐을 마주쳤다. 어떻게 할래?",
+    t_th: "บังเอิญเจอ เตนล์ บนถนน คุณจะ:",
+    o: [
+      { t_zh: "太激动了，光盯着他看，忘记拍照也忘记跟上去", t_en: "Too excited, just stared at him, forgot to take photos or follow", t_ko: "너무 감격해서 쳐다보기만 했다, 사진도 찍고 따라가는 것도 깜빡했다", t_th: "ตื่นเต้นมาก จ้องเขาอยู่ ลืมถ่ายรูป ลืมตามไป", s: [4,1,2,2,5,1] },
+      { t_zh: "大大方方走过去打招呼，顺便要个签名", t_en: "Walked up confidently to say hi and asked for an autograph", t_ko: "자신감 있게 다가가서 인사하고 싸인도 부탁했다", t_th: "เดินไปทักด้วยความมั่นใจ ขอรองเซ็นต์ด้วย", s: [5,2,1,1,4,2] },
+      { t_zh: "偷偷拍了好几张，没打扰他，假装什么都没发生", t_en: "Secretly took photos, didn't disturb him, acted like nothing happened", t_ko: "몰래 사진 여러 장 찍고, 방해하지 않고, 아무 일도 없었던 척했다", t_th: "แอบถ่ายรูปหลายใบ ไม่รบกวนเขา ทำเป็นเหมือนไม่มีอะไรเกิดขึ้น", s: [1,5,4,5,1,4] },
+      { t_zh: "没敢靠近，但把他当时的表情和说话方式在脑子里存了很久", t_en: "Didn't dare approach, but mentally saved his expression and way of speaking", t_ko: "다가가지 못했지만, 그 표정과 말투를 오래 기억 속에 저장했다", t_th: "ไม่กล้าเข้าไป แต่เก็บสีหน้าและวิธีพูดของเขาไว้ในหัวนานๆ", s: [2,3,3,2,2,3] }
+    ]
+  },
+  {
+    dim: 'A',
+    d_zh: "<em>A</em>｜连接介质  你通过什么和 TEN 产生连接？",
+    d_en: "<em>A</em>｜Connection Medium — How do you connect with TEN?",
+    d_ko: "<em>A</em>｜연결 매체 — 텐과 어떻게 연결되나요?",
+    d_th: "<em>A</em>｜สื่อแห่งการเชื่อมโยง — คุณเชื่อมโยงกับ เตนล์ ผ่านอะไร?",
+    t_zh: "你第一次真正被 TEN 击中是因为：",
+    t_en: "The first time TEN truly hit you was because of:",
+    t_ko: "텐에게 처음으로 진짜 강타당한 이유는:",
+    t_th: "ครั้งแรกที่ เตนล์ ทำให้คุณตื้นตันจริงๆ เพราะ:",
+    o: [
+      { t_zh: "某个舞台，你不记得名字了，但你记得他某一个魅惑的眼神", t_en: "A stage performance — you don't remember the name, but you remember a certain mesmerizing gaze", t_ko: "어느 무대, 이름은 기억 안 나지만, 그 매혹적인 눈빛을 기억한다", t_th: "มุมไหนสักมุม จำชื่อไม่ได้แต่จำตาเขาที่สะกดจิตได้", s: [2,4,5,5,2,3] },
+      { t_zh: "他的声音，在某首歌的某一句，突然很准确地落在你胸口", t_en: "His voice — on a certain line of a certain song, it landed right in your chest", t_ko: "그의 목소리, 어떤 노래의 어떤 구절에서, 가슴에 정확히 꽂혔다", t_th: "เสียงเขา — ในเพลงหนึ่ง เพลงบรรทัดหนึ่ง มันตรงเข้าทรวงอก", s: [5,1,1,1,2,1] },
+      { t_zh: "一张图，你存下来之后，发现看到他各种百变造型都忍不住要存一下", t_en: "A photo — after saving it, you found yourself wanting to save every look of his", t_ko: "어떤 사진 하나를 저장한 후, 그의 다양한 스타일마다 다 저장하고 싶어졌다", t_th: "รูปหนึ่งรูป — เซฟแล้วพบว่าทุกลุคของเขาอยากเซฟหมด", s: [4,2,2,2,5,2] },
+      { t_zh: "他在采访里蹦出了一句完全意想不到的话，你笑出了声又拖回去看了几遍", t_en: "He said something totally unexpected in an interview — you laughed and replayed it several times", t_ko: "인터뷰에서 완전 예상 밖의 말을 했다, 웃음이 터져서 몇 번이나 다시 봤다", t_th: "เขาพูดอะไรที่คาดไม่ถึงในสัมภาษณ์ คุณหัวเราะแล้วย้อนดูหลายรอบ", s: [1,5,4,4,1,5] }
+    ]
+  },
+  {
+    dim: 'B',
+    d_zh: "<em>B</em>｜你追的 TEN 在哪个频道  TEN 有极强的多面性，你最爱哪一面？",
+    d_en: "<em>B</em>｜Which TEN — TEN is multidimensional. Which side do you love most?",
+    d_ko: "<em>B</em>｜어떤 텐 — 텐은 다면적이다. 가장 사랑하는 면은?",
+    d_th: "<em>B</em>｜ เตนล์ ที่ไหน — เตนล์ มีหลายมิติ ด้านไหนที่คุณรักมากที่สุด?",
+    t_zh: "TEN 今天同时更新了四条内容：一条练习室独舞、一条签售他在台上缩成一团说「我好冷哦」、一期综艺 cut 他一句话让全场笑翻、一条他在家喂猫顺便展示今天晚饭是 pad thai 的 vlog。你先点开哪个？",
+    t_en: "TEN posted four updates today: a solo dance practice, a fan sign where he curled up saying 'I'm so cold', a variety show cut where one line made everyone crack up, and a vlog of him feeding his cats showing his pad thai dinner. Which do you open first?",
+    t_ko: "텐이 오늘 네 개의 콘텐츠를 올렸다: 솔로 연습실, 팬싸에서 웅크리며 '너무 추워'라는 팬싸, 한마디로 전원을 웃게 한 예능 컷, 고양이에게 밥 주면서 오늘 저녁 pad thai를 보여주는 vlog. 먼저 어떤 걸 열어볼래?",
+    t_th: "วันนี้ เตนล์ อัปเดต 4 อย่าง: คลิปเต้นโซโล่ห้องซ้อม, แฟนไซต์เขาม้วนตัวบนเวทีพูดว่า 'ฉันหนาวนะ', คัตวาไรตี้เขาพูดประโยคเดียวทำให้ทุกคนหัวเราะ, และ vlog เขาให้อาหารแมวพร้อมโชว์ pad thai เป็นอาหารเย็น คุณจะเปิดอะไรก่อน?",
+    o: [
+      { t_zh: "练习室独舞", t_en: "Solo dance practice", t_ko: "솔로 연습실", t_th: "คลิปเต้นโซโล่ห้องซ้อม", s: [2,5,5,5,2,5] },
+      { t_zh: "签售现场", t_en: "Fan sign event", t_ko: "팬싸 현장", t_th: "แฟนไซต์", s: [4,1,2,2,5,1] },
+      { t_zh: "综艺 cut", t_en: "Variety show cut", t_ko: "예능 컷", t_th: "คัตวาไรตี้", s: [5,2,1,1,4,2] },
+      { t_zh: "喂猫 vlog", t_en: "Cat-feeding vlog", t_ko: "고양이 밥 주는 vlog", t_th: "vlog ให้อาหารแมว", s: [4,2,1,2,3,3] }
+    ]
+  },
+  {
+    dim: 'B',
+    d_zh: "<em>B</em>｜你追的 TEN 在哪个频道  TEN 有极强的多面性，你最爱哪一面？",
+    d_en: "<em>B</em>｜Which TEN — TEN is multidimensional. Which side do you love most?",
+    d_ko: "<em>B</em>｜어떤 텐 — 텐은 다면적이다. 가장 사랑하는 면은?",
+    d_th: "<em>B</em>｜ เตนล์ ที่ไหน — เตนล์ มีหลายมิติ ด้านไหนที่คุณรักมากที่สุด?",
+    t_zh: "TEN 的 Sold Out 小综艺里，有一段他用泰语夹着英语讲了一件事，完全没有字幕，他自己讲完先笑了。你：",
+    t_en: "In TEN's Sold Out show, he told a story mixing Thai and English with no subtitles, and laughed at his own story first. You:",
+    t_ko: "텐의 Sold Out 예능에서 태국어와 영어를 섞어 자막 없이 이야기를 했고, 본인이 먼저 웃었다. 당신은:",
+    t_th: "ในรายการ Sold Out ของ เตนล์ เขาเล่าเรื่องผสมไทยกับอังกฤษ ไม่มีคำบรรยาย แล้วเขาหัวเราะก่อน คุณ:",
+    o: [
+      { t_zh: "在弹幕疯狂刷问号，然后开始留言调侃", t_en: "Spammed question marks in comments, then started joking along", t_ko: "댓글에 물음표를 미친 듯이 남기고, 장난 댓글을 달기 시작했다", t_th: "ลอก ? ในคอมเมนต์บ้า แล้วเริ่มมุขในคอมเมนต์", s: [5,2,1,1,5,2] },
+      { t_zh: "把这段反复放了三遍，试图靠语气猜他说了什么", t_en: "Replayed it three times, trying to guess what he said from his tone", t_ko: "이 구간을 세 번 반복 재생하며, 어조로 무슨 말을 했는지 추측했다", t_th: "เล่นซ้ำสามรอบ พยายามเดาจากน้ำเสียงว่าเขาพูดอะไร", s: [4,1,1,1,3,1] },
+      { t_zh: "截了他笑的那一帧，发到群里说「我不行了」", t_en: "Screenshotted the frame where he laughed, sent it to your group chat saying 'I can't'", t_ko: "그가 웃는 프레임을 캡처해서 단체 채팅에 '나 죽겠다'라고 보냈다", t_th: "จับภาพตอนเขาหัวเราะ ส่งในกลุ่มพูดว่า 'ฉันหมดแรงแล้ว'", s: [1,5,4,4,1,5] },
+      { t_zh: "静静看完，关掉，继续自己在做的事，但心情变好了", t_en: "Watched quietly, closed it, went back to what you were doing — but in a better mood", t_ko: "조용히 다 보고, 닫고, 하던 일을 계속했지만 기분이 좋아졌다", t_th: "ดูอย่างเงียบๆ เมื่อเสร็จก็ปิด กลับไปทำอะไรต่อ แต่อารมณ์ดีขึ้น", s: [4,2,2,2,2,2] }
+    ]
+  },
+  {
+    dim: 'B',
+    d_zh: "<em>B</em>｜你追的 TEN 在哪个频道  TEN 有极强的多面性，你最爱哪一面？",
+    d_en: "<em>B</em>｜Which TEN — TEN is multidimensional. Which side do you love most?",
+    d_ko: "<em>B</em>｜어떤 텐 — 텐은 다면적이다. 가장 사랑하는 면은?",
+    d_th: "<em>B</em>｜ เตนล์ ที่ไหน — เตนล์ มีหลายมิติ ด้านไหนที่คุณรักมากที่สุด?",
+    t_zh: "TEN 说他下个月要来你的城市。你脑子里第一个浮现的画面是：",
+    t_en: "TEN says he's coming to your city next month. The first image that comes to mind:",
+    t_ko: "텐이 다음 달에 내 도시에 온다고 했다. 머릿속에 가장 먼저 떠오르는 장면은:",
+    t_th: "เตนล์ บอกว่าเดือนหน้ามาเมืองคุณ ภาพแรกที่ผุดในหัวคือ:",
+    o: [
+      { t_zh: "他在台上，灯打下来，你站在人群里仰着头看他", t_en: "Him on stage, lights shining down, you looking up at him from the crowd", t_ko: "무대 위, 조명이 비추고, 인 속에서 그를 올려다보는 나", t_th: "เขาบนเวที ไฟส่องลงมา คุณยืนอยู่ในฝูงชนเงยหน้าดูเขา", s: [2,5,5,5,2,5] },
+      { t_zh: "你买了签售，和他非常近距离亲密地对话", t_en: "You got fan sign tickets, having a close, intimate conversation with him", t_ko: "팬싸 티켓을 구해서, 아주 가까이서 그와 대화한다", t_th: "ซื้อตั๋วแฟนไซต์ ได้คุยกับเขาในระยะใกล้มาก", s: [4,1,1,1,2,1] },
+      { t_zh: "和自己没太大关系，先等互联网出图", t_en: "Doesn't affect you much — wait for photos to surface online", t_ko: "나와 크게 상관없다, 일단 사진 올라오길 기다린다", t_th: "ไม่เกี่ยวกับตัวเองมาก รอรูปออนไลน์ก่อน", s: [5,2,1,1,5,2] },
+      { t_zh: "街上偶遇，他正在泡泡玛特店对新出的盲盒爱不释手", t_en: "Running into him on the street, obsessed with new blind boxes at Pop Mart", t_ko: "거리에서 마주쳤다, 그가 팝마트에서 새로 나온 블라인드 박스에 푹 빠져 있다", t_th: "เจอบนถนน เขากำลังติดใจกล่องบลายด์ใหม่ที่ Pop Mart", s: [4,2,1,2,3,3] }
+    ]
+  },
+  {
+    dim: 'B',
+    d_zh: "<em>B</em>｜你追的 TEN 在哪个频道  TEN 有极强的多面性，你最爱哪一面？",
+    d_en: "<em>B</em>｜Which TEN — TEN is multidimensional. Which side do you love most?",
+    d_ko: "<em>B</em>｜어떤 텐 — 텐은 다면적이다. 가장 사랑하는 면은?",
+    d_th: "<em>B</em>｜ เตนล์ ที่ไหน — เตนล์ มีหลายมิติ ด้านไหนที่คุณรักมากที่สุด?",
+    t_zh: "你向别人安利 TEN，第一条发的是：",
+    t_en: "When recommending TEN to someone, the first thing you send is:",
+    t_ko: "다른 사람에게 텐을 추천할 때, 가장 먼저 보내는 것은:",
+    t_th: "ตอนแนะนำ เตนล์ ให้คนอื่น สิ่งแรกที่คุณส่งคือ:",
+    o: [
+      { t_zh: "他日常的一个 vlog，「你先感受一下他是个什么人」", t_en: "A daily vlog — 'Get a feel for what kind of person he is first'", t_ko: "일상 vlog, '먼저 어떤 사람인지 느껴봐'", t_th: "vlog ชีวิตประจำวัน — 'ลองรู้สึกดูก่อนว่าเขาเป็นคนแบบไหน'", s: [4,2,2,2,2,2] },
+      { t_zh: "一段舞台或 MV，什么都不说，发过去就完事了", t_en: "A stage performance or MV, saying nothing, just send it", t_ko: "무대나 MV, 아무 말 없이 그냥 보낸다", t_th: "คลิปเวทีหรือ MV ไม่พูดอะไร ส่งให้เลย", s: [1,5,5,5,1,5] },
+      { t_zh: "综艺名场面，「你先笑完再说」", t_en: "A variety show iconic moment — 'Laugh first, talk later'", t_ko: "예능 명장면, '먼저 웃고 얘기하자'", t_th: "ช่วงเด่นวาไรตี้ — 'หัวเราะก่อนแล้วค่อยคุย'", s: [5,2,1,1,5,2] },
+      { t_zh: "一个粉丝的签售 repo，「他真的记得每一个爱他的人」", t_en: "A fan's fan sign repo — 'He really remembers everyone who loves him'", t_ko: "어느 팬의 팬싸 후기, '그는 정말 자기를 사랑하는 모든 사람을 기억한다'", t_th: "รีวิวแฟนไซต์ของแฟนคนหนึ่ง — 'เขาจำทุกคนที่รักเขาจริงๆ'", s: [4,1,1,1,3,1] }
+    ]
+  },
+  {
+    dim: 'C',
+    d_zh: "<em>C</em>｜你如何处理喜欢 TEN 这件事  你对他的感受，你怎么消化？",
+    d_en: "<em>C</em>｜Processing — How do you process your feelings for TEN?",
+    d_ko: "<em>C</em>｜소화 — 텐에 대한 감정을 어떻게 소화하나요?",
+    d_th: "<em>C</em>｜การย่อย — คุณย่อยความรู้สึกที่มีต่อ เตนล์ ยังไง?",
+    t_zh: "TEN 发了一条新的练习室视频，你看完之后：",
+    t_en: "TEN posted a new practice room video. After watching it:",
+    t_ko: "텐이 새 연습실 영상을 올렸다. 다 본 후:",
+    t_th: "เตนล์ โพสต์คลิปห้องซ้อมใหม่ ดูเสร็จแล้ว:",
+    o: [
+      { t_zh: "拖进度条来回看，对照他之前的作品，死盯舞蹈细节", t_en: "Scrubbed back and forth, compared with his past work, studying every dance detail", t_ko: "탐색바를 앞뒤로 움직이며, 이전 작품과 비교하며 안무 디테일을 분석했다", t_th: "เลื่อนซ้ำไปมา เทียบกับผลงานเก่า จ้องดีเทลการเต้น", s: [2,4,5,5,2,5] },
+      { t_zh: "循环播放了十遍还是看不够，只能大喊牛逼", t_en: "Looped it ten times, still couldn't get enough, just screamed 'insane'", t_ko: "열 번 반복 재생해도 모자라서, 그냥 '대박'을 외쳤다", t_th: "เล่นซ้ำสิบรอบยังไม่พอ ร้องว่า 'มันโคตรเก่ง'", s: [5,1,1,1,2,1] },
+      { t_zh: "赶紧发社交平台夸奖吹嘘一番，顺便期待有人来发 challenge", t_en: "Quickly posted on social media to hype him up, hoping someone starts a challenge", t_ko: "빨리 SNS에 올려서 칭찬하고, 누가 챌린지 올릴까 기대했다", t_th: "รีบโพสต์ชมในโซเชียล หวังว่าจะมีคนมาทำ challenge", s: [5,2,1,1,5,2] },
+      { t_zh: "自己默默存好，关掉手机，慢慢回味", t_en: "Quietly saved it, closed your phone, slowly savored the moment", t_ko: "조용히 저장하고, 폰을 닫고, 천천히 여운을 즐겼다", t_th: "เก็บไว้เงียบๆ ปิดมือถือ สูญสิบช้าๆ", s: [4,2,2,2,5,1] }
+    ]
+  },
+  {
+    dim: 'C',
+    d_zh: "<em>C</em>｜你如何处理喜欢 TEN 这件事  你对他的感受，你怎么消化？",
+    d_en: "<em>C</em>｜Processing — How do you process your feelings for TEN?",
+    d_ko: "<em>C</em>｜소화 — 텐에 대한 감정을 어떻게 소화하나요?",
+    d_th: "<em>C</em>｜การย่อย — คุณย่อยความรู้สึกที่มีต่อ เตนล์ ยังไง?",
+    t_zh: "有人问你「你为什么喜欢 TEN」。你的内心活动是：",
+    t_en: "Someone asks you 'Why do you like TEN?' Your inner reaction:",
+    t_ko: "누가 '왜 텐을 좋아해?'라고 물었다. 속마음은:",
+    t_th: "มีคนถามคุณว่า 'ทำไมถึงชอบ เตนล์' ความคิดในใจคือ:",
+    o: [
+      { t_zh: "开始在脑子里整理素材，想从哪个作品讲起", t_en: "Started mentally organizing material, thinking about which work to start with", t_ko: "머릿속으로 자료를 정리하며, 어떤 작품부터 말할지 생각했다", t_th: "เริ่มเรียงข้อมูลในหัว คิดว่าจะเริ่มจากผลงานไหน", s: [2,5,5,5,2,5] },
+      { t_zh: "说不出来，只能说「你看了就知道」", t_en: "Can't articulate it — just 'You'll know when you see it'", t_ko: "말로 표현 못 해서, '봐면 알아'라고만 했다", t_th: "อธิบายไม่ได้ บอกแค่ 'ดูเองเถอะรู้เอง'", s: [5,1,1,1,2,1] },
+      { t_zh: "打开手机相册，直接给他们看图", t_en: "Opened your photo gallery and showed them pictures directly", t_ko: "폰 갤러리를 열어서 사진을 직접 보여줬다", t_th: "เปิดแกลเลอรี่ในมือถือ แสดงรูปให้ดูตรงๆ", s: [5,2,1,1,5,2] },
+      { t_zh: "笑了一下，说「说来话长」，然后没有继续说", t_en: "Smiled, said 'It's a long story', then didn't continue", t_ko: "웃으며 '이야기가 긴데'라고 하고, 더 이상 말하지 않았다", t_th: "ยิ้มแล้วพูดว่า 'เรื่องยาว' แล้วไม่พูดต่อ", s: [4,2,2,2,5,1] }
+    ]
+  },
+  {
+    dim: 'C',
+    d_zh: "<em>C</em>｜你如何处理喜欢 TEN 这件事  你对他的感受，你怎么消化？",
+    d_en: "<em>C</em>｜Processing — How do you process your feelings for TEN?",
+    d_ko: "<em>C</em>｜소화 — 텐에 대한 감정을 어떻게 소화하나요?",
+    d_th: "<em>C</em>｜การย่อย — คุณย่อยความรู้สึกที่มีต่อ เตนล์ ยังไง?",
+    t_zh: "你现在正在做这道题。此刻你的状态是：",
+    t_en: "You're doing this quiz right now. Your current state:",
+    t_ko: "지금 이 테스트를 하고 있다. 현재 상태는:",
+    t_th: "คุณกำลังทำแบบทดสอบนี้อยู่ ตอนนี้สภาพคุณคือ:",
+    o: [
+      { t_zh: "在认真想每道题背后的逻辑", t_en: "Seriously thinking about the logic behind each question", t_ko: "각 문제 이면의 로직을 진지하게 생각하고 있다", t_th: "คิดอย่างจริงจังถึงตรรกะข้างหลังทุกข้อ", s: [1,5,5,5,1,5] },
+      { t_zh: "凭直觉选，不想被分析", t_en: "Going with your gut, don't want to be analyzed", t_ko: "직감으로 선택, 분석받고 싶지 않다", t_th: "เลือกจากสัญชาตญาณ ไม่อยากถูกวิเคราะห์", s: [5,1,1,1,2,1] },
+      { t_zh: "截图发给了朋友叫他们一起测", t_en: "Screenshotted and sent to friends to take it together", t_ko: "캡처해서 친구들에게 보냈다, 같이 하자고", t_th: "จับภาพส่งเพื่อนให้มาทำด้วยกัน", s: [5,2,1,1,5,2] },
+      { t_zh: "一个人安静做完，结果只给自己看", t_en: "Quietly doing it alone, the result is just for you", t_ko: "혼자 조용히 다 하고, 결과는 나만 본다", t_th: "ทำคนเดียวเงียบๆ ผลลัพธ์เก็บไว้คนเดียว", s: [4,2,2,2,5,1] }
+    ]
+  },
+  {
+    dim: 'C',
+    d_zh: "<em>C</em>｜你如何处理喜欢 TEN 这件事  你对他的感受，你怎么消化？",
+    d_en: "<em>C</em>｜Processing — How do you process your feelings for TEN?",
+    d_ko: "<em>C</em>｜소화 — 텐에 대한 감정을 어떻게 소화하나요?",
+    d_th: "<em>C</em>｜การย่อย — คุณย่อยความรู้สึกที่มีต่อ เตนล์ ยังไง?",
+    t_zh: "演唱会上你举了一块牌子，TEN 从你那边走过去了，没有理会。你：",
+    t_en: "At a concert you held up a sign, TEN walked past your direction without acknowledging it. You:",
+    t_ko: "콘서트에서 팻말을 들었는데, 텐이 내 쪽으로 지나갔지만 반응이 없었다. 당신은:",
+    t_th: "คอนเสิร์ตคุณยกป้าย เตนล์ เดินผ่านทางคุณแต่ไม่สนใจ คุณ:",
+    o: [
+      { t_zh: "无所谓，顺其自然，能看到他就够了", t_en: "Whatever, let it be — seeing him is enough", t_ko: "상관없다, 자연스럽게, 볼 수 있으면 충분하다", t_th: "ไม่เป็นไร อย่างเป็นธรรมชาติ เห็นเขาก็พอแล้ว", s: [5,1,1,1,2,1] },
+      { t_zh: "难受了一会儿，和朋友吐槽，但下次还是会继续举", t_en: "Felt upset for a bit, vented to friends, but will hold up a sign again next time", t_ko: "잠깐 속상했지만, 친구에게 하소연하고, 다음에도 또 들 것이다", t_th: "เสียใจสักพัก บ่นกับเพื่อน แต่คราวหน้ายังคงยกป้าย", s: [5,2,1,1,5,2] },
+      { t_zh: "默默帮他找理由——他可能没看见，接受了", t_en: "Silently made excuses for him — he probably didn't see it, accepted it", t_ko: "조용히 변명을 찾았다 — 못 본 것 같다, 받아들였다", t_th: "หาเหตุผลให้เขาเงียบๆ — เขาอาจมองไม่เห็น ยอมรับแล้ว", s: [2,5,5,5,2,5] },
+      { t_zh: "非常受伤，觉得下次再也不举了", t_en: "Really hurt, decided never to hold up a sign again", t_ko: "많이 상처받았다, 다음엔 다시 들지 않겠다고 생각했다", t_th: "เจ็บปวดมาก คิดว่าคราวหน้าจะไม่ยกป้ายแล้ว", s: [4,2,2,2,5,1] }
+    ]
+  },
+  {
+    dim: 'D',
+    d_zh: "<em>D</em>｜TEN 身上哪个矛盾最戳你  他的哪个「反差」让你最着迷？",
+    d_en: "<em>D</em>｜Contradiction — Which contrast of his fascinates you most?",
+    d_ko: "<em>D</em>｜모순 — 그의 어떤 대비가 당신을 사로잡나요?",
+    d_th: "<em>D</em>｜ความขัดแย้ง — ด้านไหนของเขาที่ดูขัดแย้งกลับดึงดูดคุณมากที่สุด?",
+    t_zh: "TEN 在访谈里认真讲了他对某个舞蹈动作的理解，说了很长，很专业。主持人问他平时怎么放松，他说：「玩猫，或者睡觉。」你：",
+    t_en: "In an interview TEN seriously explained his understanding of a dance move at length. When asked how he relaxes, he said: 'Play with cats, or sleep.' You:",
+    t_ko: "텐이 인터뷰에서 어떤 안무 동작에 대한 이해를 길고 전문적으로 설명했다. MC가 휴식 방법을 물으니 '고양이랑 놀거나, 자거요'라고 답했다. 당신은:",
+    t_th: "ในสัมภาษณ์ เตนล์ อธิบายความเข้าใจเรื่องท่าเต้นอย่างจริงจังยาวๆ MC ถามว่าพักผ่อนยังไง เขาตอบ 'เล่นกับแมว หรือนอน' คุณ:",
+    o: [
+      { t_zh: "记住了他说的舞蹈理论，回去查了他提到的那个词", t_en: "Remembered his dance theory, went home and looked up the term he mentioned", t_ko: "그의 안무 이론을 기억하고, 집에 가서 그가 언급한 용어를 검색했다", t_th: "จำทฤษฎีการเต้นของเขาไว้ กลับบ้านค้นคำที่เขาพูดถึง", s: [2,5,5,5,2,5] },
+      { t_zh: "被最后那句「玩猫或者睡觉」萌到，忘了前面说了什么", t_en: "Melted at 'play with cats or sleep', forgot everything he said before", t_ko: "'고양이랑 놀거나 자요'에 귀여워서, 앞에서 한 말을 잊었다", t_th: "เพลินกับ 'เล่นกับแมวหรือนอน' จนลืมว่าก่อนหน้านี้เขาพูดอะไร", s: [5,1,1,1,2,1] },
+      { t_zh: "截了前面专业和后面「玩猫」部分的表情温差，做成了对比图", t_en: "Screenshotted the contrast between his professional and 'cat' faces, made a comparison", t_ko: "프로페셔널한 표정과 '고양이' 모드의 표정 차이를 캡처해서 비교 사진을 만들었다", t_th: "จับภาพสีหน้าตอนมืออาชีพกับตอน 'แมว' เทียบกันทำรูปคอนทราสต์", s: [4,2,1,2,5,2] },
+      { t_zh: "觉得这才是他，前后都是真的，一点都不矛盾", t_en: "Felt this is really him — both sides are genuine, not contradictory at all", t_ko: "이게 진짜 그라고 느꼈다, 앞뒤 모두 진짜이고 전혀 모순되지 않는다", t_th: "รู้สึกว่านี่แหละเขา ทั้งสองด้านเป็นตัวจริง ไม่ขัดแย้งเลย", s: [5,2,1,1,3,2] }
+    ]
+  },
+  {
+    dim: 'D',
+    d_zh: "<em>D</em>｜TEN 身上哪个矛盾最戳你  他的哪个「反差」让你最着迷？",
+    d_en: "<em>D</em>｜Contradiction — Which contrast of his fascinates you most?",
+    d_ko: "<em>D</em>｜모순 — 그의 어떤 대비가 당신을 사로잡나요?",
+    d_th: "<em>D</em>｜ความขัดแย้ง — ด้านไหนของเขาที่ดูขัดแย้งกลับดึงดูดคุณมากที่สุด?",
+    t_zh: "TEN 最吸引你的「矛盾感」是：",
+    t_en: "TEN's most attractive 'contradiction' is:",
+    t_ko: "텐의 가장 매력적인 '모순'은:",
+    t_th: "ความขัดแย้งที่ดึงดูดคุณมากที่สุดของ เตนล์ คือ:",
+    o: [
+      { t_zh: "舞台上是神一样无所不能的存在，下台之后在电子产品等方面有点笨笨的", t_en: "God-like and omnipotent on stage, but a bit clumsy with electronics off stage", t_ko: "무대 위에서는 신 같은 존재, 무대 밖에서는 전자기기에 서툰 모습", t_th: "บนเวทีเป็นเทพเจ้า ลงเวทีแล้วใช้เครื่องอิเล็กทรอนิกส์ไม่เก่ง", s: [5,1,1,1,2,1] },
+      { t_zh: "对自己的作品精益求精，但做人大道至简，没有花边新闻", t_en: "Perfectionist with his work, but lives simply with no gossip or scandals", t_ko: "작품에는 완벽주의지만, 생활은 소박하고 스캔들이 없다", t_th: "ทำงานเป็นเพอร์เฟกต์แต่ใช้ชีวิตเรียบง่าย ไม่มีข่าวซุบซิบ", s: [1,5,5,5,1,5] },
+      { t_zh: "看起来很有距离感，但其实是温柔的邻家大哥哥", t_en: "Seems distant, but is actually a gentle older-brother-next-door type", t_ko: "거리감이 있어 보이지만, 사실 다정한 옆집 오빠 같다", t_th: "ดูห่างเหินแต่จริงๆ เป็นพี่ชายข้างบ้านที่อบอุ่น", s: [4,2,1,2,5,2] },
+      { t_zh: "明明可以把自己包装得更完美，但现实中对穿着没那么在意，随性打扮的普通人", t_en: "Could package himself more perfectly, but doesn't care much about fashion — just casually dressed", t_ko: "자신을 더 완벽하게 꾸밀 수 있지만, 현실에서는 패션에 크게 신경 안 쓰고 편하게 입는다", t_th: "แพ็คตัวเองได้สวยกว่านี้ แต่จริงๆ ไม่แคร์เรื่องแฟชั่น แต่งตัวสบายๆ", s: [5,2,1,1,3,2] }
+    ]
+  },
+  {
+    dim: 'E',
+    d_zh: "<em>E</em>｜你的保护欲方向  你对 TEN 的爱，指向哪里？",
+    d_en: "<em>E</em>｜Protection — Where does your love for TEN point?",
+    d_ko: "<em>E</em>｜보호 — 텐을 향한 사랑은 어디를 향하나요?",
+    d_th: "<em>E</em>｜การปกป้อง — ความรักของคุณที่มีต่อ เตนล์ มุ่งไปที่ไหน?",
+    t_zh: "TEN 的某个现场表演视频在社交媒体上被大量转发，评论区里有真心喜欢的，也有路过说「这不就是个跳舞的」。你：",
+    t_en: "One of TEN's live performance videos went viral. Comments include genuine fans and passersby saying 'Isn't he just a dancer?' You:",
+    t_ko: "텐의 어떤 라이브 퍼포먼스 영상이 SNS에서 대량 공유되었다. 댓글에는 진심인 팬도 있고 '춤추는 사람 아니야?'라고 하는 지나가는 사람도 있다. 당신은:",
+    t_th: "คลิปไลฟ์ เตนล์ โด่งไวรัล คอมเมนต์มีทั้งแฟนจริงและคนที่ผ่านมาพูดว่า 'นี่ไม่ใช่แค่นักเต้นเหรอ' คุณ:",
+    o: [
+      { t_zh: "有点不舒服，想护着他，觉得这些人不值得看他", t_en: "Felt uncomfortable, wanted to protect him, felt these people don't deserve to watch him", t_ko: "불편했다, 그를 보호하고 싶었고, 이 사람들은 그를 볼 자격이 없다고 느꼈다", t_th: "รู้สึกไม่สบาย อยากปกป้องเขา คิดว่าพวกนี้ไม่สมควรดูเขา", s: [1,5,5,5,1,5] },
+      { t_zh: "开心，越多人看到越好，他值得被更多人知道", t_en: "Happy — the more people see him the better, he deserves to be known", t_ko: "기뻤다, 많은 사람이 볼수록 좋다, 더 많은 사람이 알아야 한다", t_th: "ดีใจ ยิ่งคนเห็นเยอะยิ่งดี เขาสมควรได้รับการรู้จัก", s: [5,1,1,1,5,1] },
+      { t_zh: "没什么感觉，他的好不需要被人认证", t_en: "Nothing really — his greatness doesn't need validation", t_ko: "별 감정 없었다, 그의 좋음은 누군가의 인증이 필요 없다", t_th: "ไม่รู้สึกอะไร ความดีของเขาไม่ต้องการการยืนยัน", s: [4,3,3,1,3,3] },
+      { t_zh: "在看评论区那些新粉，觉得他们和曾经的自己一样", t_en: "Looking at new fans in comments, thinking they're just like you used to be", t_ko: "댓글의 새 팬들을 보며, 예전의 나랑 같다고 생각했다", t_th: "ดูแฟนใหม่ในคอมเมนต์ คิดว่าพวกเขาเหมือนตัวเองในอดีต", s: [5,1,1,1,3,1] }
+    ]
+  },
+  {
+    dim: 'E',
+    d_zh: "<em>E</em>｜你的保护欲方向  你对 TEN 的爱，指向哪里？",
+    d_en: "<em>E</em>｜Protection — Where does your love for TEN point?",
+    d_ko: "<em>E</em>｜보호 — 텐을 향한 사랑은 어디를 향하나요?",
+    d_th: "<em>E</em>｜การปกป้อง — ความรักของคุณที่มีต่อ เตนล์ มุ่งไปที่ไหน?",
+    t_zh: "TEN 在最新一期的后台小花絮里话不太多，没有以前活跃。你：",
+    t_en: "In the latest behind-the-scenes clip, TEN was quieter than usual, not as energetic. You:",
+    t_ko: "최신 비하인드 클립에서 텐이 평소보다 말이 적고 활발하지 않았다. 당신은:",
+    t_th: "ในคลิป behind the scene ล่าสุด เตนล์ เงียบกว่าปกติ ไม่ค่อยกระฉับกระเฉง คุณ:",
+    o: [
+      { t_zh: "有点担心，反复回看，想搞清楚他是不是不开心", t_en: "A bit worried, rewatched several times, trying to figure out if he's unhappy", t_ko: "걱정됐다, 여러 번 다시 보며, 기분이 안 좋은 건 아닌지 알고 싶었다", t_th: "กังวลนิดหน่อย ย้อนดูหลายรอบ อยากรู้ว่าเขาไม่สบายใจไหม", s: [2,4,4,2,1,4] },
+      { t_zh: "希望更多人发推特安慰他，多给他一点支持", t_en: "Hoped more people would tweet to comfort him, show him more support", t_ko: "더 많은 사람이 트위터로 위로해 주길 바랐고, 그에게 더 많은 지지를 보내고 싶었다", t_th: "หวังว่าคนจะมาทวีตปลอบเขาเยอะๆ ให้กำลังใจเขามากขึ้น", s: [5,1,1,1,5,1] },
+      { t_zh: "相信他有自己的状态，不需要过度解读", t_en: "Believed he has his own rhythm, no need to overthink it", t_ko: "그만의 템포가 있다고 믿었고, 과대해석할 필요 없다고 생각했다", t_th: "เชื่อว่าเขามีจังหวะของตัวเอง ไม่ต้องตีความมาก", s: [4,3,3,1,2,3] },
+      { t_zh: "莫名觉得他最近和自己有点像，想让他知道你也在", t_en: "Somehow felt he's been a bit like you lately, wanted him to know you're here too", t_ko: "왠지 요즘 그가 나랑 비슷하다는 느낌이 들었고, 내가 여기 있다는 걸 알려주고 싶었다", t_th: "รู้สึกไปเองว่าเขาเหมือนตัวเองเมื่อนึก อยากบอกเขาว่าฉันก็อยู่ตรงนี้", s: [5,1,1,1,3,1] }
+    ]
+  },
+  {
+    dim: 'E',
+    d_zh: "<em>E</em>｜你的保护欲方向  你对 TEN 的爱，指向哪里？",
+    d_en: "<em>E</em>｜Protection — Where does your love for TEN point?",
+    d_ko: "<em>E</em>｜보호 — 텐을 향한 사랑은 어디를 향하나요?",
+    d_th: "<em>E</em>｜การปกป้อง — ความรักของคุณที่มีต่อ เตนล์ มุ่งไปที่ไหน?",
+    t_zh: "如果突然一段时间涌入了很多 TEN 的新粉，你：",
+    t_en: "If suddenly a lot of new TEN fans flooded in, you:",
+    t_ko: "갑자기 텐의 새 팬이 많이 몰려오면, 당신은:",
+    t_th: "ถ้ามีแฟนใหม่ของ เตนล์ เข้ามาเยอะๆ ในช่วงสั้นๆ คุณ:",
+    o: [
+      { t_zh: "有点警觉，怕他被消费，想护着他", t_en: "A bit on guard, afraid he'll be consumed, want to protect him", t_ko: "경계했다, 그가 소비될까 봐 걱정되고, 보호하고 싶었다", t_th: "ระวังนิดหน่อย กลัวเขาจะถูกบริโภค อยากปกป้องเขา", s: [1,5,5,5,1,5] },
+      { t_zh: "很开心，越多人喜欢他越好，他值得", t_en: "Very happy — the more people like him the better, he deserves it", t_ko: "매우 기뻤다, 많은 사람이 좋아할수록 좋다, 그는 그럴 자격이 있다", t_th: "ดีใจมาก ยิ่งคนชอบเยอะยิ่งดี เขาสมควรได้รับ", s: [5,1,1,1,5,1] },
+      { t_zh: "无所谓，自己追自己的，和我没关系", t_en: "Whatever, do your own thing, doesn't affect you", t_ko: "상관없다, 나는 나대로, 나와 관계없다", t_th: "ไม่สนใจ ทำของตัวเอง ไม่เกี่ยวกับฉัน", s: [4,3,3,1,2,3] },
+      { t_zh: "有点复杂，怕抢票或签售的竞争变大了", t_en: "A bit conflicted, worried about increased competition for tickets and fan signs", t_ko: "조금 복잡했다, 티켓이나 팬싸 경쟁이 심해질까 봐 걱정했다", t_th: "ซับซ้อนนิดหน่อย กลัวแข่งขันตั๋วหรือแฟนไซต์จะเพิ่มขึ้น", s: [4,2,1,2,5,2] }
+    ]
+  },
+  {
+    dim: 'F',
+    d_zh: "<em>F</em>｜你在 TEN 身上投射的是什么  你在 TEN 身上看见了什么？",
+    d_en: "<em>F</em>｜Projection — What do you see in TEN?",
+    d_ko: "<em>F</em>｜투영 — 텐에게서 무엇을 보나요?",
+    d_th: "<em>F</em>｜การสะท้อน — คุณเห็นอะไรในตัว เตนล์?",
+    t_zh: "TEN 并不容易被外界眼光和挫折打倒，「我只在意自己有没有在追求的路上继续前行。」看到这句话你：",
+    t_en: "TEN isn't easily defeated by outside opinions: 'I only care about whether I'm still moving forward on my path.' Reading this, you:",
+    t_ko: "텐은 외부 시선이나 좌절에 쉽게 무너지지 않는다. '나는 내가 추구하는 길에서 계속 전진하고 있는지만 신경 쓴다.' 이 말을 읽고 당신은:",
+    t_th: "เตนล์ ไม่ง่ายที่จะถูกทำลายด้วยสายตาภายนอกหรือความล้มเหลว 'ฉันแค่สนใจว่าฉันยังเดินบนเส้นทางของตัวเองต่อไปไหม' อ่านประโยคนี้ คุณ:",
+    o: [
+      { t_zh: "被激励到，想起了你自己某件还没做完的事", t_en: "Felt inspired, remembered something of your own you haven't finished", t_ko: "영감을 받았다, 내가 아직 끝내지 못한 일이 떠올랐다", t_th: "ได้แรงบันดาลใจ นึกถึงเรื่องที่ตัวเองยังทำไม่เสร็จ", s: [5,1,1,1,2,1] },
+      { t_zh: "心里有什么被触动了，这句话说出了你没说出来的东西", t_en: "Something inside was touched — he said what you couldn't say", t_ko: "마음속 무언가가 건드려졌다, 그가 내가 못 할 말을 해줬다", t_th: "มีอะไรในใจถูกสัมผัส — เขาพูดสิ่งที่คุณพูดไม่ออก", s: [4,2,1,1,5,2] },
+      { t_zh: "觉得他说得很酷，但感觉和自己的世界不太一样", t_en: "Thought it was cool, but felt like his world is different from yours", t_ko: "멋진 말이라고 생각했지만, 내 세계와는 다르다고 느꼈다", t_th: "คิดว่าเขาพูดเท่มาก แต่รู้สึกว่าโลกของเขาต่างจากของเรา", s: [1,5,5,5,1,5] },
+      { t_zh: "笑了一下，因为你好像也是这样的人", t_en: "Smiled, because you feel like you're the same kind of person", t_ko: "웃었다, 내가 그런 사람 같아서", t_th: "ยิ้ม เพราะรู้สึกว่าคุณก็เป็นคนแบบนั้น", s: [4,2,2,2,3,3] }
+    ]
+  },
+  {
+    dim: 'F',
+    d_zh: "<em>F</em>｜你在 TEN 身上投射的是什么  你在 TEN 身上看见了什么？",
+    d_en: "<em>F</em>｜Projection — What do you see in TEN?",
+    d_ko: "<em>F</em>｜투영 — 텐에게서 무엇을 보나요?",
+    d_th: "<em>F</em>｜การสะท้อน — คุณเห็นอะไรในตัว เตนล์?",
+    t_zh: "如果和 TEN 一起去迪士尼，你们会：",
+    t_en: "If you went to Disneyland with TEN, you would:",
+    t_ko: "텐과 디즈니랜드에 가면, 어떻게 할래?",
+    t_th: "ถ้าไปดิสนีย์แลนด์กับ เตนล์ คุณจะ:",
+    o: [
+      { t_zh: "一起坐旋转木马，夜幕降临时牵着手一起看烟花", t_en: "Ride the carousel together, hold hands watching fireworks at dusk", t_ko: "함께 회전목마를 타고, 밤이 되면 손을 잡고 불꽃놀이를 본다", t_th: "นั่งม้าหมุนด้วยกัน พอค่ำคืนจับมือกันดูพลุ", s: [5,1,1,1,3,1] },
+      { t_zh: "找一个没什么人的地方坐下来，聊了很久，关于他关于你关于任何事", t_en: "Find a quiet spot, sit down and talk for ages — about him, about you, about anything", t_ko: "한적한 곳을 찾아 앉아, 오랫동안 이야기한다 — 그에 대해, 나에 대해, 무엇이든", t_th: "หาที่เงียบๆ นั่งคุยกันนาน — เรื่องเขา เรื่องคุณ เรื่องอะไรก็ได้", s: [4,2,1,1,5,2] },
+      { t_zh: "他去哪个项目你都跟着，但其实你只是想看他玩得开心", t_en: "Follow him to every ride, but really you just want to see him having fun", t_ko: "그가 어디 가든 따라가지만, 사실 그가 즐거워하는 걸 보고 싶을 뿐이다", t_th: "เขาไปเล่นอะไรก็ตาม แต่จริงๆ อยากดูเขาสนุก", s: [5,2,1,1,5,2] },
+      { t_zh: "在鬼屋里两个人同时尖叫，互相看了一眼，然后笑出来", t_en: "Both scream in the haunted house, look at each other, and burst out laughing", t_ko: "유령의 집에서 둘 다 동시에 비명을 지르고, 서로를 보고 웃었다", t_th: "ในบ้านผีสองคนกรี๊ดพร้อมกัน มองหน้ากันแล้วหัวเราะ", s: [5,1,1,1,2,1] }
+    ]
+  },
+  {
+    dim: 'F',
+    d_zh: "<em>F</em>｜你在 TEN 身上投射的是什么  你在 TEN 身上看见了什么？",
+    d_en: "<em>F</em>｜Projection — What do you see in TEN?",
+    d_ko: "<em>F</em>｜투영 — 텐에게서 무엇을 보나요?",
+    d_th: "<em>F</em>｜การสะท้อน — คุณเห็นอะไรในตัว เตนล์?",
+    t_zh: "你的追星状态更像哪种：",
+    t_en: "Your fangirl/fanboy mode is more like:",
+    t_ko: "당신의 팬 모드는 어떤 타입인가:",
+    t_th: "โหมดแฟนของคุณเหมือนแบบไหนมากกว่า:",
+    o: [
+      { t_zh: "只要他不停止追梦，你就不会走", t_en: "As long as he keeps chasing his dream, you won't leave", t_ko: "그가 꿈을 좇는 한, 나는 떠나지 않는다", t_th: "ขอเขาไม่หยุดไล่ฝัน คุณจะไม่ไปไหน", s: [5,1,1,1,2,1] },
+      { t_zh: "已经分不清喜欢他和喜欢喜欢他这件事了", t_en: "Can't tell anymore whether you like him or like the feeling of liking him", t_ko: "그를 좋아하는 것과 좋아하는 감정 자체를 좋아하는 것을 구별할 수 없다", t_th: "แยกไม่ออกแล้วว่าชอบเขาหรือชอบความรู้สึกของการชอบเขา", s: [4,2,1,1,5,2] },
+      { t_zh: "想和他更近一点，觉得他就在你身边，你知道这是幻想，但你不想醒", t_en: "Want to be closer to him, feel like he's right beside you — you know it's fantasy, but you don't want to wake up", t_ko: "더 가까워지고 싶다, 옆에 있는 것 같다, 판타지라는 걸 알지만, 깨고 싶지 않다", t_th: "อยากใกล้เขามากขึ้น รู้สึกเหมือนเขาอยู่ข้างๆ รู้ว่าเป็นจินตนาการ แต่ไม่อยากตื่น", s: [4,2,2,2,3,2] },
+      { t_zh: "淡淡的陪伴，各自安好，他在追他的梦，你在看", t_en: "A quiet companionship — each doing well in their own way, he chases his dream, you watch", t_ko: "조용한 동반, 각자 잘 지내고, 그는 꿈을 좇고, 나는 본다", t_th: "ความสนิทเงียบๆ — แต่ละคนดีในแบบของตัวเอง เขาไล่ฝัน คุณดู", s: [1,5,5,5,1,5] }
+    ]
+  },
+  {
+    dim: 'F',
+    d_zh: "<em>F</em>｜你在 TEN 身上投射的是什么  你在 TEN 身上看见了什么？",
+    d_en: "<em>F</em>｜Projection — What do you see in TEN?",
+    d_ko: "<em>F</em>｜투영 — 텐에게서 무엇을 보나요?",
+    d_th: "<em>F</em>｜การสะท้อน — คุณเห็นอะไรในตัว เตนล์?",
+    t_zh: "最后一道题。你喜欢 TEN 这件事，对你自己来说意味着什么？",
+    t_en: "Last question. What does liking TEN mean to you?",
+    t_ko: "마지막 문제. 텐을 좋아하는 것이 당신에게 무엇을 의미하나요?",
+    t_th: "ข้อสุดท้าย การชอบ เตนล์ หมายถึงอะไรสำหรับคุณ?",
+    o: [
+      { t_zh: "一种向往，他活成了你想活的样子的一部分", t_en: "An aspiration — he's living part of the life you want to live", t_ko: "동경, 그는 내가 살고 싶은 삶의 일부를 살고 있다", t_th: "ความปรารถนา — เขาใช้ชีวิตบางส่วนที่คุณอยากใช้", s: [5,1,1,1,2,1] },
+      { t_zh: "一个出口，他的表达说出了你没说出来的东西", t_en: "An outlet — his expression speaks what you couldn't say", t_ko: "출구, 그의 표현이 내가 말하지 못한 것을 대신 말해줬다", t_th: "ทางออก — การแสดงออกของเขาพูดสิ่งที่คุณพูดไม่ออก", s: [4,2,1,1,5,2] },
+      { t_zh: "一种享受，喜欢他这件事本身就是完整的，不需要意义", t_en: "A pleasure — liking him is complete in itself, needs no deeper meaning", t_ko: "즐거움, 그를 좋아하는 것 자체로 완전하다, 의미가 필요 없다", t_th: "ความเพลิดเพลิน — การชอบเขาเองก็สมบูรณ์แล้ว ไม่ต้องการความหมาย", s: [1,5,5,5,1,5] },
+      { t_zh: "一面镜子，你在他身上看见了你自己的某个部分", t_en: "A mirror — you see a part of yourself reflected in him", t_ko: "거울, 그에게서 나 자신의 일부를 보았다", t_th: "กระจก — คุณเห็นส่วนหนึ่งของตัวเองสะท้อนในตัวเขา", s: [5,1,1,1,3,1] }
+    ]
+  }
+];
+
+const RESULTS = [
+  {
+    e: "&#x1FA9E;", n: "练习室凌晨三点", n_ko: "새벽 3시 연습실", n_th: "03:00 ในห้องซ้อม", n_en: "3AM in the Practice Room",
+    img: "练习室凌晨三点.jpg",
+    p: [2, 4, 5, 5, 3, 4],
+    d_zh: "你是因为 TEN 的专业被击中的人。你可能反复看他的练习室视频，研究他每个 isolation 和控制力。他是你舞蹈/表演/艺术上的标杆。你喜欢他不只是因为「好看」，而是因为你知道那个程度的好需要付出什么。你追的不是偶像，是一个你想追上的背影。",
+    d_en: "You were struck by TEN's professionalism. You probably rewatch his practice room videos, studying every isolation and his control. He's your benchmark in dance/performance/art. You like him not just because he's 'good-looking,' but because you know what it takes to be that good. You're not chasing an idol — you're chasing a silhouette you want to catch up to.",
+    d_ko: "텐의 프로페셔널함에 강타당한 사람이다. 아마 연습실 영상을 반복해서 보며 모든 아이솔레이션과 컨트롤을 분석했을 것이다. 텐은 춤/퍼포먼스/예술에서 당신의 기준이 된다. 그저 \"잘생겼다\"가 아니라 그 정도가 되려면 무엇이 필요한지 알기 때문에 좋아하는 것이다. 당신이 쫓는 건 아이돌이 아니라, 당신이 따라잡고 싶은 실루엣이다.",
+    d_th: "คุณถูกความเป็นมืออาชีพของ เตนล์ ทำให้ตื้นตัน คุณน่าจะดูคลิปห้องซ้อมซ้ำๆ ศึกษาทุกท่า isolation และการควบคุม เขาคือมาตรฐานของคุณในเรื่องเต้น/การแสดง/ศิลปะ คุณชอบเขาไม่ใช่แค่เพราะ \"หล่อ\" แต่เพราะคุณรู้ดีว่าจะต้องทำอะไรถึงจะเก่งขนาดนี้ คุณไม่ได้ตามไอดอล คุณตามเงาที่อยากไล่ทัน",
+  },
+  {
+    e: "&#x1F48C;", n: "Paint Me Naked", n_ko: "Paint Me Naked", n_th: "Paint Me Naked", n_en: "Paint Me Naked",
+    img: "Paint Me Naked.JPG",
+    p: [4, 1, 2, 3, 2, 1],
+    d_zh: "最直白的一个符号。你对 TEN 的喜欢里有一种私密的、浪漫的想象——你会代入他的歌词，会在脑子里编排你们相遇的场景，会在睡前想「如果他认识我他会喜欢我吗」。这不是什么不好的事，TEN 自己都说了「paint me naked」，他本就是一个敢于暴露、邀请凝视的人。你只是那个回应得最认真的人。你的喜欢里有一根细线，一端连着他，一端连着一个你自己也说不清楚的柔软的地方。",
+    d_en: "The most straightforward symbol. Your love for TEN carries a private, romantic imagination — you project yourself into his lyrics, mentally choreograph scenes of your encounters, and wonder before sleep 'If he knew me, would he like me?' There's nothing wrong with this. TEN himself said 'paint me naked' — he dares to expose himself and invite the gaze. You're simply the one who responded most earnestly. Your love has a thin thread — one end connected to him, the other to a soft place inside you that even you can't fully articulate.",
+    d_ko: "가장 직접적인 심볼. 텐을 향한 사랑에는 은밀하고 로맨틱한 상상이 있다 — 그의 가사에 자신을 투영하고, 만날 상상을 머릿속에 연출하며, 잠들기 전 \"그가 나를 알면 나를 좋아할까?\"라고 생각한다. 이건 나쁜 게 아니다. 텐 스스로 \"paint me naked\"라고 했다 — 그는 자신을 드러내고 시선을 초대하는 용기가 있는 사람이다. 당신은 가장 진지하게 응답한 사람이다. 당신의 사랑에는 가는 실 하나가 있다 — 한 끝은 그에게, 다른 한 끝은 당신 자신도 설명할 수 없는 부드러운 곳에 닿아 있다.",
+    d_th: "สัญลักษณ์ที่ตรงไปที่สุด ความรักที่คุณมีต่อ เตนล์ มีจินตนาการส่วนตัวและโรแมนติก — คุณลงตัวเองในเนื้อเพลง จินตนาการฉากพบกัน แล้วก่อนนอนคิดว่า \"ถ้าเขารู้จักฉัน เขาจะชอบฉันไหม?\" นี่ไม่ใช่เรื่องไม่ดี เตนล์ เองก็พูดว่า \"paint me naked\" — เขากล้าเปิดเผยตัวเองและเชิญชวนสายตา คุณคือคนที่ตอบรับด้วยความจริงใจมากที่สุด ความรักของคุณมีเส้นใยบางๆ เส้นหนึ่ง — ปลายหนึ่งเชื่อมกับเขา อีกปลายเชื่อมกับที่อ่อนโยนในตัวคุณที่แม้คุณเองก็อธิบายไม่ได้",
+  },
+  {
+    e: "&#x1F431;", n: "第四只 L", n_en: "The Fourth L",
+    n_ko: "네 번째 L",
+    n_th: "L ตัวที่สี่",
+    img: "第四只L.JPG",
+    p: [1, 3, 2, 3, 1, 4],
+    d_zh: "TEN 的猫叫 Louis、Leon、Lev，全是 L 开头。你是第四只。你把 TEN 当一个可以揉来揉去的存在，觉得他软乎乎的很萌。他发猫的照片你会说「这是我和我老公的孩子」。你追星的方式是轻松的、温暖的、带着一种天然的亲昵，就像他抱猫的姿势一样自然。",
+    d_ko: "텐의 고양이 이름은 Louis, Leon, Lev — 모두 L로 시작한다. 당신은 네 번째다. 텐을 만지고 싶은 존재로 생각하며, 부드럽고 귀엽다고 느낀다. 고양이 사진을 올리면 '이건 나랑 내 남편의 아기들이야'라고 말한다. 당신의 스탄 방식은 가볍고, 따뜻하고, 자연스러운 친밀감이 있다. 고양이를 안는 그의 자세처럼 자연스럽다.",
+    d_th: "แมวของ เตนล์ ชื่อ Louis, Leon, Lev — ทั้งหมดขึ้นต้นด้วย L คุณคือตัวที่สี่ คุณมอง เตนล์ เหมือนของที่อยากกอดอยู่เสมอ รู้สึกว่าเขานุ่มๆน่ารัก เวลาเขาโพสต์รูปแมว คุณจะพูดว่า \"นี่คือลูกของฉันกับสามีฉัน\" วิธีตามไอดอลของคุณเป็นธรรมชาติ อบอุ่น มีความใกล้ชิดตามสันดาน เหมือนท่าทางเขากอดแมว",
+    d_en: "TEN's cats are named Louis, Leon, Lev — all starting with L. You're the fourth one. You treat TEN as someone you can squish and cuddle — soft and adorable. When he posts cat photos, you say 'These are me and my hubby's babies.' Your way of stanning is relaxed, warm, with a natural intimacy — as natural as the way he holds his cats."
+  },
+  {
+    e: "&#x1F56F;", n: "蜡烛灯前", n_ko: "촛불 앞에서", n_th: "เทียนเล่มเล็ก", n_en: "Before the Candle",
+    img: "蜡烛灯前.jpg",
+    p: [1, 4, 5, 4, 3, 4],
+    d_zh: "泰国庙里总有人在灯前供花，那种虔诚不是畏惧，是信。你喜欢 TEN 的方式有一种近乎宗教的纯粹——他的才华、他的人格、他对艺术的态度，在你眼里有一种不可被轻慢的神圣感。你不玩泥塑或梦女梗，不是因为规矩，而是你真的觉得那样配不上他。",
+    d_ko: "태국 사원에는 항상 누군가 촛불 앞에 꽃을 바친다. 그 경건함은 두려움이 아니라 믿음이다. 텐을 좋아하는 방식에 거의 종교적인 순수함이 있다. 그의 재능, 인격, 예술에 대한 태도가 신성하다고 느낀다. 팬픽이나 망상 밈에 빠지지 않는 건 규칙이 아니라 진심으로 그건 그에게 어울리지 않는다고 생각하기 때문이다.",
+    d_th: "ในวัดไทยมักมีคนจุดดอกไม้ไว้หน้าเทียน ความศรัทธานั้นไม่ใช่ความกลัว แต่เป็นความเชื่อ วิธีที่คุณชอบ เตนล์ มีความบริสุทธิ์เหมือนศาสนา — พรสวรรค์ บุคลิก ทัศนคติต่อศิลปะของเขาดูเป็นสิ่งศักดิ์สิทธิ์ในสายตาคุณ คุณไม่เล่น fanfic หรือ delusion meme ไม่ใช่เพราะกฎ แต่เพราะคิดจริงๆว่ามันไม่เหมาะกับเขา",
+    d_en: "In Thai temples, there's always someone offering flowers before the candles — that devotion isn't fear, it's faith. Your love for TEN has an almost religious purity — his talent, his character, his attitude toward art carry a sacredness in your eyes that cannot be trifled with. You don't engage in fan fiction or delusion memes, not because of rules, but because you genuinely feel that wouldn't do him justice."
+  },
+  {
+    e: "&#x1F3A8;", n: "未干的颜料", n_ko: "마르지 않은 물감", n_th: "สีที่ยังเปียก", n_en: "Wet Paint",
+    img: "未干的颜料.jpg",
+    p: [4, 4, 5, 1, 3, 3],
+    d_zh: "TEN 本人就爱画画，而你追的正是他身上那股「艺术家」的劲。你最爱的是他的舞台概念、MV 里的视觉表达、表情管理、肢体叙事。Dream in a Dream 的东方美学让你起鸡皮疙瘩，Nightwalker 的暗黑氛围让你上头。你看的不是 TEN 这个人，你看的是 TEN 这件作品——而这件作品还没完成，颜料未干。",
+    d_ko: "텐 본인도 그림을 좋아한다. 당신이 좇는 건 바로 그의 '아티스트' 에너지다. 무대 콘셉트, MV의 비주얼 표현, 표정 관리, 바디 스토리텔링을 가장 좋아한다. Dream in a Dream의 동양 미학에 소름이 돋고, Nightwalker의 다크 분위기에 빠진다. 텐이라는 사람이 아니라 텐이라는 작품을 보는 것이다. 그리고 이 작품은 아직 완성되지 않았다. 물감이 마르지 않았다.",
+    d_th: "เตนล์ เองก็ชอบวาดรูป และสิ่งที่คุณตามคือ \"ศิลปิน\" ที่อยู่ในตัวเขา สิ่งที่คุณชอบที่สุดคือคอนเซ็ปต์เวที การแสดงออกทางสายตาใน MV การควบคุมสีหน้า การเล่าเรื่องด้วยร่างกาย สุนทรียศาลตะวันออกของ Dream in a Dream ทำให้คุณขนลุก บรรยากาศมืดของ Nightwalker ทำให้คุณติดใจ คุณมองไม่ใช่ เตนล์ คนนี้ คุณมอง เตนล์ ชิ้นงานนี้ — และชิ้นงานนี้ยังไม่เสร็จ สียังเปียกอยู่",
+    d_en: "TEN himself loves to paint, and what you're drawn to is that 'artist' energy in him. What you love most are his stage concepts, visual expression in MVs, facial expression management, body storytelling. The Eastern aesthetics of Dream in a Dream gave you goosebumps, the dark vibe of Nightwalker hooked you. You're not watching TEN the person — you're watching TEN the artwork. And this artwork isn't finished yet. The paint is still wet."
+  },
+  {
+    e: "&#x1F4DE;", n: "第七个电话", n_ko: "일곱 번째 전화", n_th: "สายโทรศัพท์สายที่เจ็ด", n_en: "The Seventh Call",
+    img: "第七个电话.jpg",
+    p: [4, 3, 1, 2, 5, 4],
+    d_zh: "WayV 六个人，你是那个随时想拨进去的第七条线。你最爱看的是 TEN 和队友的互动、团综里的名场面、日常 vlog 里他怎么逗别人笑。你喜欢的不只是 TEN，是 TEN 存在的那个氛围——他在的地方好像就会变得更有趣更温暖。你追星追的是陪伴感。",
+    d_ko: "WayV 여섯 명, 당신은 언제든 걸고 싶은 일곱 번째 선이다. 텐과 멤버들의 상호작용, 예능의 명장면, 일상 vlog에서 다른 사람을 웃기는 모습을 가장 좋아한다. 텐만 좋아하는 게 아니라 텐이 존재하는 그 분위기를 좋아한다. 텐이 있는 곳은 더 재미있고 따뜻해진다. 당신이 좇는 건 동반감이다.",
+    d_th: "WayV 6 คน คุณคือสายที่ 7 ที่อยากโทรเข้าไปตลอด สิ่งที่คุณชอบดูที่สุดคือ interaction ของ เตนล์ กับเพื่อนร่วมวง ช่วงเด่นใน variety show วิธีที่เขาทำให้คนอื่นขำใน vlog ประจำวัน คุณไม่ได้ชอบแค่ เตนล์ แต่ชอบบรรยากาศที่ เตนล์ อยู่ — ที่ไหนมีเขา ก็ดูสนุกและอบอุ่นขึ้น สิ่งที่คุณตามคือความรู้สึกของการได้อยู่ด้วย",
+    d_en: "WayV has six members, and you're the seventh line always trying to get through. What you love most is TEN's interactions with his members, iconic moments in group variety shows, how he makes others laugh in daily vlogs. You don't just like TEN — you like the atmosphere TEN creates. Wherever he is, things seem more fun and warmer. What you're really chasing is a sense of companionship."
+  }
+];
+
+// 权重
+const W  = [1.1, 1.2, 1.0, 1.15, 1.1, 1.05];
+const K  = 15;
+// 中心校正偏移量（将均匀随机答题的期望 profile 拉回 3,3,3,3,3,3）
+const OFFSET = [-0.6875, 0.5125, 0.7625, 0.7, -0.0375, 0.5375];
+// 缩放系数：校正后以3为中心放大偏差，增强区分度
+const SCALE = 2.0;
+const LABELS = ['A','B','C','D'];
+
+// 当前分享结果数据（用于截图）
+let _shareData = null;
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let cur = 0, ans = [];
+
+/* ══════════════════════════════════════════════
+   STARS
+══════════════════════════════════════════════ */
+// 页面访问埋点（延迟，等 SDK 加载）
+window.addEventListener('load', () => setTimeout(() => track('page_view'), 800));
+
+(function initStars() {
+  for (let i = 0; i < 45; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2 + 1;
+    Object.assign(s.style, {
+      width:  sz + 'px', height: sz + 'px',
+      left:   Math.random() * 100 + '%',
+      top:    Math.random() * 100 + '%',
+      '--d':  (2.5 + Math.random() * 4)   + 's',
+      '--delay': (Math.random() * 5)       + 's',
+      '--op': (0.25 + Math.random() * 0.5)
+    });
+    document.body.appendChild(s);
+  }
+})();
+
+/* ══════════════════════════════════════════════
+   URL 参数恢复（分享链接）
+══════════════════════════════════════════════ */
+(function restoreFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const answers = params.get('a');
+  if (!answers) return;
+
+  try {
+    const decoded = JSON.parse(atob(answers));
+    if (Array.isArray(decoded) && decoded.length === 20) {
+      ans = decoded;
+      showResult();
+    }
+  } catch (e) {
+    console.warn('无法恢复URL参数', e);
+  }
+})();
+
+/* ══════════════════════════════════════════════
+   PAGES
+══════════════════════════════════════════════ */
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.scrollTop = 0;
+}
+
+function startQuiz() { cur = 0; ans = []; renderQ(); show('page-quiz'); track('quiz_start'); }
+function retake() { _shareData = null; show('page-landing'); }
+
+/* ══════════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════════ */
+function renderQ() {
+  const q = Q[cur];
+  const pct = Math.round(cur / Q.length * 100);
+  const l = _lang; // 当前语言
+
+  document.getElementById('q-num').textContent   = 'Q' + String(cur + 1).padStart(2, '0');
+  document.getElementById('q-dim').innerHTML      = q['d_' + l];
+  document.getElementById('prog-label').textContent = (cur + 1) + ' / ' + Q.length;
+  document.getElementById('prog-pct').textContent   = pct + '%';
+  document.getElementById('prog-fill').style.width  = pct + '%';
+  document.getElementById('q-text').textContent     = q['t_' + l];
+
+  document.getElementById('btn-back').style.display = cur > 0 ? 'block' : 'none';
+
+  const container = document.getElementById('opts');
+  container.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    if (ans[cur] === i) btn.classList.add('selected');
+    btn.innerHTML = '<div class="opt-inner"><span class="opt-lbl">' + LABELS[i] + '</span><span>' + opt['t_' + l] + '</span></div>';
+    btn.onclick = () => pick(i);
+    container.appendChild(btn);
+  });
+}
+
+function pick(i) {
+  document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+  document.querySelectorAll('.opt-btn')[i].classList.add('selected');
+  ans[cur] = i;
+  setTimeout(() => {
+    cur++;
+    if (cur < Q.length) renderQ();
+    else showResult();
+  }, 320);
+}
+
+function goBack() {
+  if (cur <= 0) return;
+  cur--;
+  renderQ();
+}
+
+/* ══════════════════════════════════════════════
+   ALGORITHM
+══════════════════════════════════════════════ */
+function calcProfile() {
+  const p = [0,0,0,0,0,0];
+  ans.forEach((ai, qi) => Q[qi].o[ai].s.forEach((v, k) => p[k] += v));
+  return p.map((v, k) => {
+    let s = v / Q.length + OFFSET[k];       // 中心校正
+    s = 3 + (s - 3) * SCALE;                // 放大偏差
+    return Math.max(1, Math.min(5, s));      // 钳位到1-5
+  });
+}
+
+function calcMatches(profile) {
+  return RESULTS.map((r, ri) => {
+    const sqDist = r.p.reduce((s, v, k) => s + W[k] * Math.pow(profile[k] - v, 2), 0);
+    const dist   = Math.sqrt(sqDist);
+    const match = Math.round((100 - dist / K * 100) * 100) / 100;
+    return { i: ri, m: Math.max(0, match) };
+  });
+}
+
+/* ══════════════════════════════════════════════
+   RESULT
+══════════════════════════════════════════════ */
+function showResult() {
+  const profile = calcProfile();
+  const matches = calcMatches(profile);
+  const sorted  = [...matches].sort((a, b) => b.m - a.m);
+  const l = _lang;
+
+  const top = RESULTS[sorted[0].i];
+  const isDual = sorted[0].m === sorted[1].m;
+
+  // 存储分享数据
+  _shareData = { top, profile, matches, isDual, sorted };
+
+  /* header — emoji 用 innerHTML 解析 HTML 实体 */
+  document.getElementById('res-emoji').innerHTML = top.e;
+  document.getElementById('res-name').textContent  = top['n_' + l] || top.n;
+
+  /* 结果图片 */
+  const imgEl = document.getElementById('res-img');
+  imgEl.src = top.img;
+  imgEl.alt = top['n_' + l] || top.n;
+
+  /* description */
+  const descEl = document.getElementById('res-desc');
+  if (isDual) {
+    const sec = RESULTS[sorted[1].i];
+    descEl.innerHTML =
+      '<div class="res-desc-dual-label">' + t('toast_dual') + '</div>' +
+      '<div>' + (top['d_' + l] || top.d_zh) + '</div><hr class="res-desc-sep">' +
+      '<div class="res-desc-name2">' + sec.e.replace(/&#x([0-9a-f]+);/gi, function(_, h){return String.fromCodePoint(parseInt(h,16));}) + ' ' + (sec['n_' + l] || sec.n) + '</div>' +
+      '<div>' + (sec['d_' + l] || sec.d_zh) + '</div>';
+  } else {
+    descEl.textContent = top['d_' + l] || top.d_zh;
+  }
+
+  show('page-result');
+  setTimeout(() => {
+    drawRadarProfile(profile);
+    drawDimBars(profile);
+  }, 120);
+
+  // 埋点：答题完成
+  track('quiz_complete', {
+    resultKey: top.n,
+    matchPct: sorted[0].m,
+    profile: profile.map(v => Math.round(v * 10) / 10)
+  });
+}
+
+/* ══════════════════════════════════════════════
+   RADAR CHART
+══════════════════════════════════════════════ */
+function getAxisLabels() {
+  return [
+    ['IO', t('dim_IO'), t('dim_IO_L'), t('dim_IO_R')],
+    ['CD', t('dim_CD'), t('dim_CD_L'), t('dim_CD_R')],
+    ['LP', t('dim_LP'), t('dim_LP_L'), t('dim_LP_R')],
+    ['IA', t('dim_IA'), t('dim_IA_L'), t('dim_IA_R')],
+    ['PS', t('dim_PS'), t('dim_PS_L'), t('dim_PS_R')],
+    ['PO', t('dim_PO'), t('dim_PO_L'), t('dim_PO_R')]
+  ];
+}
+// 向后兼容
+const AXIS_LABELS = getAxisLabels();
+
+let radarChart = null;
+
+function drawRadarProfile(profile, canvasId, legendId) {
+  canvasId  = canvasId  || 'radar-canvas';
+  legendId  = legendId  || 'radar-legend';
+  const axLabels = getAxisLabels();
+
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // 1-5量表转换为0-100显示：score * 20
+  const data   = axLabels.map((_, i) => Math.round(profile[i] * 20));
+  const labelStrs = axLabels.map(ax => [ax[0], ax[1]]);
+
+  const instanceId = canvasId === 'radar-canvas' ? 'radarChart' : 'scRadarChart';
+  if (window[instanceId]) { window[instanceId].destroy(); window[instanceId] = null; }
+
+  window[instanceId] = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labelStrs,
+      datasets: [{
+        data,
+        backgroundColor: 'rgba(168,85,247,0.15)',
+        borderColor: 'rgba(192,132,252,0.9)',
+        borderWidth: 1.5,
+        pointBackgroundColor: 'rgba(192,132,252,0.85)',
+        pointBorderColor: 'transparent',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { display: false, stepSize: 25 },
+          grid: { color: 'rgba(196,132,252,0.12)' },
+          angleLines: { color: 'rgba(196,132,252,0.18)' },
+          pointLabels: {
+            color: '#d8b4fe',
+            font: { size: 10, weight: '600' },
+            padding: 8,
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.raw
+          }
+        }
+      }
+    }
+  });
+
+  const legendEl = document.getElementById(legendId);
+  if (legendEl) {
+    legendEl.innerHTML = axLabels.map(ax =>
+      '<span><em>' + ax[0] + '</em>' + ax[1] + ' <s>' + ax[2] + ' / ' + ax[3] + '</s></span>'
+    ).join('');
+  }
+}
+
+/* ══════════════════════════════════════════════
+   DIM BARS
+══════════════════════════════════════════════ */
+const BAR_COLORS_LEFT  = [
+  'linear-gradient(to left, #7c3aed, #c084fc)',
+  'linear-gradient(to left, #6d28d9, #a78bfa)',
+  'linear-gradient(to left, #5b21b6, #c084fc)',
+  'linear-gradient(to left, #7c3aed, #818cf8)',
+  'linear-gradient(to left, #6d28d9, #c084fc)',
+  'linear-gradient(to left, #7c3aed, #a78bfa)',
+];
+const BAR_COLORS_RIGHT = [
+  'linear-gradient(to right, rgba(99,102,241,.7), rgba(168,85,247,.4))',
+  'linear-gradient(to right, rgba(79,70,229,.7), rgba(139,92,246,.4))',
+  'linear-gradient(to right, rgba(91,33,182,.7), rgba(168,85,247,.4))',
+  'linear-gradient(to right, rgba(99,102,241,.7), rgba(129,140,248,.4))',
+  'linear-gradient(to right, rgba(79,70,229,.7), rgba(192,132,252,.4))',
+  'linear-gradient(to right, rgba(99,102,241,.7), rgba(167,139,250,.4))',
+];
+
+function drawDimBars(profile) {
+  const container = document.getElementById('dim-bars');
+  container.innerHTML = '';
+  const axLabels = getAxisLabels();
+
+  // 1-5量表，3为中点，score < 3 偏向左边，score > 3 偏向右边
+  axLabels.forEach((ax, i) => {
+    const score = profile[i];
+    const deviation = Math.abs(score - 3);
+    const fillPct = deviation / 2 * 50; // 最大偏离(2)时填充50%
+    const leftWins = score < 3;
+    const code = ax[0];
+    const lCode = code[0];
+    const rCode = code[1] || code[0];
+
+    const row = document.createElement('div');
+    row.className = 'dim-row';
+    row.innerHTML =
+      '<div class="dim-left">' + ax[2] + '<em>' + lCode + '</em></div>' +
+      '<div class="dim-track" id="dtrack' + i + '">' +
+        '<div class="dim-fill ' + (leftWins ? 'left-bias' : 'right-bias') + '" id="dfill' + i + '"' +
+          ' style="width:0%; ' + (leftWins ? 'right:50%' : 'left:50%') + '; background:' + (leftWins ? BAR_COLORS_LEFT[i] : BAR_COLORS_RIGHT[i]) + '">' +
+        '</div>' +
+      '</div>' +
+      '<div class="dim-right"><em>' + rCode + '</em>' + ax[3] + '</div>';
+    container.appendChild(row);
+  });
+
+  requestAnimationFrame(() => {
+    AXIS_LABELS.forEach((_, i) => {
+      const score = profile[i];
+      const deviation = Math.abs(score - 3);
+      const fillPct = deviation / 2 * 50;
+      const fillEl   = document.getElementById('dfill' + i);
+      if (fillEl) fillEl.style.width = fillPct + '%';
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════
+   SHARE
+══════════════════════════════════════════════ */
+function openSharePanel() {
+  document.getElementById('share-panel').style.display = 'flex';
+}
+function closeSharePanel() {
+  document.getElementById('share-panel').style.display = 'none';
+}
+
+// 点击遮罩也可关闭
+document.addEventListener('click', function(e) {
+  const panel = document.getElementById('share-panel');
+  if (panel && panel.style.display !== 'none' && e.target === panel) {
+    closeSharePanel();
+  }
+});
+
+function generateShareLink() {
+  // encodeURIComponent 把 base64 里的 + / = 全部 percent-encode，
+  // 防止 URL 解析时 + 被当成空格导致 atob 失败
+  const encoded = encodeURIComponent(btoa(JSON.stringify(ans)));
+  // 始终取不含参数的纯净路径，确保二维码落首页
+  const base = window.location.origin + window.location.pathname;
+  return base + '?a=' + encoded;
+}
+
+function copyShareLink() {
+  const link = generateShareLink();
+  closeSharePanel();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link)
+      .then(() => toast(t('toast_copy')))
+      .catch(() => toast(t('toast_copy_fail')));
+  } else {
+    prompt(_lang === 'en' ? 'Copy this link:' : '\u590d\u5236\u6b64\u94fe\u63a5:', link);
+  }
+}
+
+async function generateShareImg() {
+  if (!_shareData) { toast(_lang === 'en' ? 'Please complete the quiz first' : '请先完成测试'); return; }
+  const { top, profile } = _shareData;
+  closeSharePanel();
+  toast(t('toast_gen'));
+
+  try {
+    const W = 390; // 分享卡片宽度
+
+    /* ── Step 1: 把结果图片预转成 data URL，彻底规避 html2canvas 的 CORS 问题 ── */
+    function imgToDataURL(src) {
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const c = document.createElement('canvas');
+            c.width = img.naturalWidth; c.height = img.naturalHeight;
+            c.getContext('2d').drawImage(img, 0, 0);
+            resolve(c.toDataURL('image/jpeg', 0.9));
+          } catch(e) { resolve(src); }
+        };
+        img.onerror = () => resolve(src);
+        img.src = src;
+      });
+    }
+
+    const radarEl  = document.getElementById('radar-canvas');
+    const [resultDataURL] = await Promise.all([imgToDataURL(top.img)]);
+    const radarDataURL    = radarEl ? radarEl.toDataURL('image/png') : null;
+
+    /* ── Step 2: 生成二维码并拿到 data URL ── */
+    const qrHolder = document.createElement('div');
+    qrHolder.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;';
+    document.body.appendChild(qrHolder);
+    new QRCode(qrHolder, {
+      text: generateShareLink(), width: 100, height: 100,
+      colorDark: '#4c1d95', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    await new Promise(res => {
+      const chk = () => {
+        if (qrHolder.querySelector('canvas,img')) { res(); return; }
+        setTimeout(chk, 50);
+      };
+      chk();
+    });
+    const qrNode    = qrHolder.querySelector('canvas') || qrHolder.querySelector('img');
+    const qrDataURL = qrNode ? (qrNode.toDataURL ? qrNode.toDataURL() : qrNode.src) : null;
+    document.body.removeChild(qrHolder);
+
+    /* ── Step 3: 构建截图容器（所有图片均用 data URL，html2canvas 无需跨域） ── */
+    const container = document.createElement('div');
+    // position:absolute + left 偏移，避免 position:fixed 的渲染问题
+    container.style.cssText = `
+      position: absolute; top: 0; left: -${W + 20}px;
+      width: ${W}px;
+      background: linear-gradient(180deg, #0c071e 0%, #160c30 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: #f3e8ff;
+    `;
+
+    function mk(tag, css, text) {
+      const e = document.createElement(tag);
+      if (css)  e.style.cssText = css;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+    function card(extra) {
+      return mk('div', `
+        margin: 0 16px 14px; padding: 16px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(196,132,252,0.18);
+        border-radius: 18px; ${extra || ''}
+      `);
+    }
+
+    // 顶部标签
+    container.appendChild(mk('div', `
+      text-align:center; padding: 32px 0 0;
+      font-size: 10px; letter-spacing: 3px;
+      color: rgba(139,106,170,0.8);
+    `, t('snap_tagline')));
+
+    // emoji
+    const emojiText = top.e.replace(/&#x([0-9a-f]+);/gi,
+      (_, h) => String.fromCodePoint(parseInt(h, 16)));
+    container.appendChild(mk('div', `
+      text-align: center; font-size: 60px; line-height: 1.3;
+      padding: 12px 0 6px;
+    `, emojiText));
+
+    // 名称（html2canvas 不支持 background-clip:text，用纯色代替）
+    container.appendChild(mk('div', `
+      text-align: center; font-size: 24px; font-weight: 700;
+      color: #c084fc; padding-bottom: 16px;
+    `, top['n_' + _lang] || top.n));
+
+    // 描述卡
+    const dc = card();
+    dc.appendChild(mk('div', `
+      font-size: 13px; color: rgba(216,180,254,0.85); line-height: 1.9;
+    `, top['d_' + _lang] || top.d_zh));
+    container.appendChild(dc);
+
+    // 雷达图卡
+    if (radarDataURL) {
+      const rc = card('text-align:center;');
+      rc.appendChild(mk('div', `
+        font-size:10px; letter-spacing:2.5px; color:rgba(139,106,170,0.8);
+        margin-bottom:10px;
+      `, t('snap_radar')));
+      const ri = mk('img');
+      ri.src = radarDataURL;
+      ri.style.cssText = 'width:100%; max-width:260px; height:auto; display:block; margin:0 auto;';
+      rc.appendChild(ri);
+      container.appendChild(rc);
+    }
+
+    // 维度偏向卡
+    const dimc = card();
+    dimc.appendChild(mk('div', `
+      font-size:10px; letter-spacing:2.5px; color:rgba(139,106,170,0.8);
+      text-align:center; margin-bottom:12px;
+    `, t('snap_dim')));
+    const snapAxLabels = getAxisLabels();
+    snapAxLabels.forEach((ax, i) => {
+      const score  = profile[i];
+      const dev    = Math.abs(score - 3);
+      const fillPct = (dev / 2) * 50; // 0-50%
+      const isLeft = score < 3;
+      const row = mk('div', 'display:flex; align-items:center; margin-bottom:8px; font-size:11px;');
+      row.appendChild(mk('span', 'flex:1; text-align:right; color:rgba(216,180,254,0.82); padding-right:6px; white-space:nowrap;', ax[2]));
+      const track = mk('div', 'flex:0 0 130px; height:7px; background:rgba(255,255,255,0.07); border-radius:4px; position:relative;');
+      // 中心线
+      track.appendChild(mk('div', 'position:absolute; top:0; left:50%; width:1px; height:100%; background:rgba(255,255,255,0.2);'));
+      // 填充条
+      const fillColor = isLeft ? '#a855f7' : '#6366f1';
+      const fillSide  = isLeft ? 'right' : 'left';
+      track.appendChild(mk('div', `
+        position:absolute; top:0; ${fillSide}:50%;
+        width:${fillPct / 2}%; height:100%;
+        background:${fillColor}; border-radius:4px;
+      `));
+      row.appendChild(track);
+      row.appendChild(mk('span', 'flex:1; text-align:left; color:rgba(216,180,254,0.82); padding-left:6px; white-space:nowrap;', ax[3]));
+      dimc.appendChild(row);
+    });
+    container.appendChild(dimc);
+
+    // 结果圆形图片（用 background 实现圆形，避免 object-fit 截图异常）
+    if (resultDataURL) {
+      const iw = mk('div', 'text-align:center; margin: 4px 0 18px;');
+      const ri = mk('div');
+      ri.style.cssText = `
+        width:130px; height:130px; border-radius:50%;
+        background-image:url(${resultDataURL});
+        background-size:cover; background-position:center 20%;
+        background-repeat:no-repeat;
+        border:1.5px solid rgba(196,132,252,0.4);
+        box-shadow:0 0 32px rgba(168,85,247,0.3), 0 0 0 7px rgba(196,132,252,0.07);
+        display:inline-block;
+      `;
+      iw.appendChild(ri);
+      container.appendChild(iw);
+    }
+
+    // footer（声明靠左，二维码靠右）
+    const footer = mk('div', 'background:#fff; display:flex; align-items:center; justify-content:space-between; padding:14px 18px 16px;');
+    const footerText = mk('div', 'flex:1; padding-right:12px;');
+    footerText.appendChild(mk('div', 'color:#7c3aed; font-size:11px; font-weight:600; margin-bottom:3px;',
+      t('footer_line1')));
+    footerText.appendChild(mk('div', 'color:#999; font-size:9px; margin-bottom:2px;',
+      t('footer_line2')));
+    footerText.appendChild(mk('div', 'color:#bbb; font-size:8px;',
+      'all rights reserved by HiTOMi'));
+    footer.appendChild(footerText);
+    if (qrDataURL) {
+      const qi = mk('img');
+      qi.src = qrDataURL;
+      qi.style.cssText = 'width:70px; height:70px; flex-shrink:0;';
+      footer.appendChild(qi);
+    }
+    container.appendChild(footer);
+
+    // 暂时允许 body overflow，让 absolute 定位元素可以完整布局
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'visible';
+    document.body.appendChild(container);
+
+    /* ── Step 4: 等待容器内所有图片加载完毕 ── */
+    const allImgs = Array.from(container.querySelectorAll('img'));
+    await Promise.all(allImgs.map(img => new Promise(res => {
+      if (img.complete && img.naturalHeight > 0) { res(); return; }
+      img.onload = res; img.onerror = res;
+    })));
+    await new Promise(r => setTimeout(r, 200));
+
+    /* ── Step 5: html2canvas 截图 ── */
+    // useCORS:false + allowTaint:false：所有图片均已是 data URL，无跨域，canvas 不会被污染
+    const snap = await html2canvas(container, {
+      scale: 2,
+      useCORS: false,
+      allowTaint: false,
+      backgroundColor: '#0c071e',
+      logging: false,
+    });
+
+    document.body.removeChild(container);
+    document.body.style.overflow = prevOverflow;
+
+    const dataUrl = snap.toDataURL('image/png');
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('preview-overlay').style.display = 'flex';
+
+  } catch (err) {
+    toast(t('toast_gen_fail'));
+    console.error('generateShareImg failed:', err);
+  }
+}
+
+// 辅助：圆角矩形路径
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+// 辅助：文字换行
+function wrapText(text, maxW, fontSize) {
+  const lines = [];
+  let line = '';
+  for (const ch of text) {
+    const test = line + ch;
+    // 简单估算：中文字符宽度约等于 fontSize
+    const estW = [...test].reduce((s, c) => s + (c.charCodeAt(0) > 127 ? fontSize : fontSize * 0.55), 0);
+    if (estW > maxW && line) {
+      lines.push(line);
+      line = ch;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function closePreview() {
+  document.getElementById('preview-overlay').style.display = 'none';
+}
+
+// 语言切换：双重绑定确保兼容
+document.getElementById('lang-sel').addEventListener('change', function() { switchLang(this.value); });
+
+/* ══════════════════════════════════════════════
+   COMMENT 留言
+══════════════════════════════════════════════ */
+(function initComment() {
+  var ta = document.getElementById('comment-textarea');
+  var cc = document.getElementById('comment-char-count');
+  if (!ta || !cc) return;
+  ta.addEventListener('input', function() {
+    cc.textContent = ta.value.length + ' / 500';
+  });
+})();
+
+/* ── 个人历史记录 ── */
+let _historyLoaded = false;
+let _historyRows = null; // 缓存原始数据，语言切换时重渲染
+
+// 结果名多语言映射（key 为存储在 Supabase 里的中文名）
+const _RESULT_NAMES = {
+  '练习室凌晨三点': { zh: '练习室凌晨三点', en: '3AM in the Practice Room', ko: '새벽 3시 연습실', th: '03:00 ในห้องซ้อม', e: '🪞' },
+  'Paint Me Naked':  { zh: 'Paint Me Naked',  en: 'Paint Me Naked',           ko: 'Paint Me Naked',   th: 'Paint Me Naked',        e: '💌' },
+  '第四只 L':        { zh: '第四只 L',         en: 'The Fourth L',             ko: '네 번째 L',         th: 'L ตัวที่สี่',           e: '🐱' },
+  '蜡烛灯前':        { zh: '蜡烛灯前',         en: 'Before the Candle',        ko: '촛불 앞에서',        th: 'เทียนเล่มเล็ก',         e: '🕯️' },
+  '未干的颜料':      { zh: '未干的颜料',       en: 'Wet Paint',                ko: '마르지 않은 물감',   th: 'สีที่ยังเปียก',          e: '🎨' },
+  '第七个电话':      { zh: '第七个电话',       en: 'The Seventh Call',         ko: '일곱 번째 전화',     th: 'สายโทรศัพท์สายที่เจ็ด', e: '📞' },
+};
+
+function toggleHistory() {
+  var panel = document.getElementById('history-panel');
+  var btn   = document.getElementById('btn-history');
+  var isOpen = panel.classList.contains('open');
+
+  if (isOpen) {
+    panel.classList.remove('open');
+    btn.classList.remove('active');
+  } else {
+    panel.classList.add('open');
+    btn.classList.add('active');
+    if (!_historyLoaded) loadHistory();
+  }
+}
+
+function loadHistory() {
+  _historyLoaded = true;
+  var ua = encodeURIComponent(navigator.userAgent);
+  var url = _SB_URL + '?event=eq.quiz_complete&ua=eq.' + ua
+          + '&select=result_key,created_at&order=created_at.desc&limit=50';
+
+  fetch(url, {
+    headers: { 'apikey': _SB_KEY, 'Authorization': 'Bearer ' + _SB_KEY }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(rows) {
+    document.getElementById('history-loading').style.display = 'none';
+    if (!rows || rows.length === 0) {
+      document.getElementById('history-empty').style.display = 'block';
+      return;
+    }
+    _historyRows = rows;
+    renderHistoryRows();
+    document.getElementById('history-table').style.display = 'table';
+  })
+  .catch(function() {
+    document.getElementById('history-loading').textContent = t('history_loading') + ' ✕';
+  });
+}
+
+function renderHistoryRows() {
+  if (!_historyRows) return;
+  var tbody = document.getElementById('history-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  _historyRows.forEach(function(row) {
+    var dt = row.created_at ? row.created_at.slice(0, 10) : '-';
+    var tm = row.created_at ? row.created_at.slice(11, 16) : '';
+    var rk = row.result_key || '-';
+    var info = _RESULT_NAMES[rk];
+    var label = info ? (info.e + ' ' + (info[_lang] || info.zh)) : rk;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td class="td-time">' + dt + ' ' + tm + '</td>' +
+      '<td class="td-result">' + label + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function openDashboard() {
+  var base = window.location.href.split('?')[0];
+  var dir  = base.substring(0, base.lastIndexOf('/') + 1);
+  window.open(dir + 'dashboard.html', '_blank');
+}
+
+function submitComment() {
+  var ta = document.getElementById('comment-textarea');
+  var btn = document.getElementById('comment-submit');
+  var msg = ta.value.trim();
+  if (!msg) { toast(t('toast_comment_empty')); return; }
+
+  btn.disabled = true;
+  var resultKey = _shareData ? _shareData.top.n : null;
+
+  fetch(_SB_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': _SB_KEY,
+      'Authorization': 'Bearer ' + _SB_KEY,
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
+      event: 'comment',
+      result_key: resultKey,
+      lang: _lang,
+      message: msg,
+      ua: navigator.userAgent,
+      ref: document.referrer || null
+    }),
+    keepalive: true
+  }).then(function() {
+    toast(t('toast_comment_ok'));
+    ta.value = '';
+    document.getElementById('comment-char-count').textContent = '0 / 500';
+  }).catch(function() {
+    toast(t('toast_comment_fail'));
+  }).finally(function() {
+    btn.disabled = false;
+  });
+}
+</script>
+</body>
+</html>

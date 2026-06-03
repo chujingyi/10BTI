@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10BTI Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0c071e;
+    --bg2: #160c30;
+    --card: rgba(255,255,255,0.05);
+    --border: rgba(196,132,252,0.18);
+    --pl: #c084fc;
+    --p: #a855f7;
+    --pd: #7c3aed;
+    --text: #f3e8ff;
+    --sub: #d8b4fe;
+    --muted: #8b6aaa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 25% 15%, rgba(139,92,246,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse at 75% 85%, rgba(168,85,247,0.14) 0%, transparent 55%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* stars */
+  .star {
+    position: fixed;
+    border-radius: 50%;
+    background: #fff;
+    pointer-events: none;
+    animation: twinkle var(--d) var(--delay) ease-in-out infinite;
+    z-index: 0;
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: 0; transform: scale(.5); }
+    50%      { opacity: var(--op); transform: scale(1); }
+  }
+  .header {
+    position: relative; z-index: 1;
+    background: linear-gradient(135deg, var(--bg2) 0%, rgba(124,58,237,0.15) 100%);
+    padding: 48px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .header-left h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #e9d5ff 0%, #c084fc 55%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+  .header-left .time {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .lang-sel {
+    background: rgba(255,255,255,0.08);
+    color: var(--sub);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+  }
+  .lang-sel option { background: var(--bg2); color: var(--text); }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+    backdrop-filter: blur(6px);
+  }
+  .stat .num {
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .stat .num.accent { color: var(--pl); }
+  .stat .num.pink { color: #f472b6; }
+  .stat .num.green { color: #34d399; }
+  .stat .num.amber { color: #fbbf24; }
+  .stat .label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .grid {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 24px 32px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(6px);
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--sub);
+    margin-bottom: 16px;
+  }
+  .chart-wrap {
+    position: relative;
+    height: 280px;
+  }
+  /* pie chart: left chart, right legend */
+  .pie-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 280px;
+  }
+  .pie-row .chart-box {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    position: relative;
+  }
+  .pie-row .legend-box {
+    width: 200px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--sub);
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .legend-item .val {
+    margin-left: auto;
+    font-weight: 700;
+    color: #fff;
+    font-size: 13px;
+  }
+  /* comments table */
+  .comments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .comments-table th {
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  .comments-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(196,132,252,0.08);
+    vertical-align: top;
+  }
+  .comments-table td.time-cell {
+    color: var(--muted);
+    white-space: nowrap;
+    font-size: 12px;
+    width: 80px;
+  }
+  .comments-table td.time-cell .date-line { margin-bottom: 2px; }
+  .comments-table td.result-cell {
+    width: 80px;
+    vertical-align: top;
+  }
+  .comments-table td.msg-cell {
+    color: rgba(255,255,255,0.85);
+    min-width: 0;
+  }
+  .result-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: normal;
+    word-break: break-word;
+    color: #1a0040;
+    line-height: 1.4;
+  }
+  .loading {
+    text-align: center;
+    padding: 60px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .error {
+    text-align: center;
+    padding: 40px;
+    color: #f87171;
+    line-height: 1.8;
+  }
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; padding: 10px; max-width: 100%; }
+    .header { padding: 48px 16px 16px; }
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat .num { font-size: 22px; }
+    .header h1 { font-size: 22px; }
+    .pie-row { flex-direction: column; height: auto; }
+    .pie-row .chart-box { width: 100%; height: 240px; }
+    .pie-row .legend-box { width: 100%; flex-direction: column; flex-wrap: nowrap; }
+    .card { overflow: hidden; }
+    .chart-wrap { overflow: hidden; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-left">
+      <h1>10BTI Dashboard</h1>
+      <div class="time" id="update-time"></div>
+    </div>
+    <select class="lang-sel" id="lang-sel" onchange="switchLang(this.value)">
+      <option value="zh" selected>中文</option>
+      <option value="en">EN</option>
+      <option value="ko">한국어</option>
+      <option value="th">ไทย</option>
+    </select>
+  </div>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="num accent" id="s-pv">-</div>
+      <div class="label" data-i18n="stat_pv">浏览量</div>
+    </div>
+    <div class="stat">
+      <div class="num" id="s-users">-</div>
+      <div class="label" data-i18n="stat_users">用户数</div>
+    </div>
+    <div class="stat">
+      <div class="num" id="s-today">-</div>
+      <div class="label" data-i18n="stat_today">今日新增</div>
+    </div>
+    <div class="stat">
+      <div class="num pink" id="s-total">-</div>
+      <div class="label" data-i18n="stat_total">总测试数</div>
+    </div>
+    <div class="stat">
+      <div class="num green" id="s-rate">-</div>
+      <div class="label" data-i18n="stat_rate">完成率</div>
+    </div>
+    <div class="stat">
+      <div class="num amber" id="s-comments">-</div>
+      <div class="label" data-i18n="stat_comments">留言数</div>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="loading">加载中…</div>
+
+<script>
+// Stars
+(function initStars() {
+  for (let i = 0; i < 45; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2 + 1;
+    Object.assign(s.style, {
+      width: sz + 'px', height: sz + 'px',
+      left: Math.random() * 100 + '%',
+      top: Math.random() * 100 + '%',
+      '--d': (2.5 + Math.random() * 4) + 's',
+      '--delay': (Math.random() * 5) + 's',
+      '--op': (0.25 + Math.random() * 0.5)
+    });
+    document.body.appendChild(s);
+  }
+})();
+
+const SB_URL = 'https://ecraezijjdukxybogrki.supabase.co/rest/v1/events';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjcmFlemlqamR1a3h5Ym9ncmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ1NzEsImV4cCI6MjA5MjEwMDU3MX0.GNw_SMG8trP8ouhbkkljv9fZk5B2VIXIpadYl6jDkBw';
+
+/* ═══ I18N ═══ */
+let _lang = 'zh';
+
+const _T = {
+  stat_pv:      { zh: '浏览量', en: 'Page Views', ko: '조회수', th: 'เข้าชม' },
+  stat_users:   { zh: '用户数', en: 'Users', ko: '사용자', th: 'ผู้ใช้' },
+  stat_today:   { zh: '今日新增', en: 'Today', ko: '오늘', th: 'วันนี้' },
+  stat_total:   { zh: '总测试数', en: 'Tests', ko: '테스트', th: 'ทดสอบ' },
+  stat_rate:    { zh: '完成率', en: 'Completion', ko: '완료율', th: 'อัตราเสร็จ' },
+  stat_comments:{ zh: '留言数', en: 'Messages', ko: '메시지', th: 'ข้อความ' },
+  chart_result: { zh: '🎯 结果分布', en: '🎯 Result Distribution', ko: '🎯 결과 분포', th: '🎯 การกระจายผลลัพธ์' },
+  chart_lang:   { zh: '🌐 语言分布', en: '🌐 Language', ko: '🌐 언어', th: '🌐 ภาษา' },
+  chart_trend:  { zh: '📈 每日趋势', en: '📈 Daily Trend', ko: '📈 일일 추이', th: '📈 แนวโน้มรายวัน' },
+  chart_ref:    { zh: '🔗 来源统计', en: '🔗 Traffic Source', ko: '🔗 트래픽 소스', th: '🔗 แหล่งที่มา' },
+  chart_msg:    { zh: '💬 最近留言', en: '💬 Recent Messages', ko: '💬 최근 메시지', th: '💬 ข้อความล่าสุด' },
+  th_time:      { zh: '时间', en: 'Time', ko: '시간', th: 'เวลา' },
+  th_result:    { zh: '结果', en: 'Result', ko: '결과', th: 'ผลลัพธ์' },
+  th_message:   { zh: '留言', en: 'Message', ko: '메시지', th: 'ข้อความ' },
+  trend_pv:     { zh: '页面浏览', en: 'Page Views', ko: '조회수', th: 'เข้าชม' },
+  trend_comp:   { zh: '完成测试', en: 'Completed', ko: '완료', th: 'เสร็จสิ้น' },
+  ref_direct:   { zh: '直接访问', en: 'Direct', ko: '직접', th: 'เข้าตรง' },
+  ref_twitter:  { zh: 'Twitter/X', en: 'Twitter/X', ko: 'Twitter/X', th: 'Twitter/X' },
+  ref_google:   { zh: 'Google 搜索', en: 'Google Search', ko: 'Google 검색', th: 'Google ค้นหา' },
+  ref_internal: { zh: '站内跳转', en: 'Internal', ko: '내부 이동', th: 'ภายใน' },
+  lang_unknown: { zh: '未知', en: 'Unknown', ko: '알 수 없음', th: 'ไม่ทราบ' },
+  updated:      { zh: '更新于', en: 'Updated', ko: '업데이트', th: 'อัปเดต' },
+  loading:      { zh: '加载中…', en: 'Loading…', ko: '로딩 중…', th: 'กำลังโหลด…' },
+  error_load:   { zh: '加载失败: ', en: 'Load failed: ', ko: '로드 실패: ', th: 'โหลดไม่สำเร็จ: ' },
+  error_hint:   { zh: '<br><br>请确认 Supabase events 表的 RLS 策略允许 anon 读取。', en: '<br><br>Please check Supabase RLS policy allows anon read.', ko: '<br><br>Supabase RLS 정책이 anon 읽기를 허용하는지 확인하세요.', th: '<br><br>กรุณาตรวจสอบนโยบาย RLS ของ Supabase' },
+};
+
+// 结果名称多语言
+const RESULT_NAMES_ZH = ['练习室凌晨三点','Paint Me Naked','第四只L','蜡烛灯前','未干的颜料','第七个电话'];
+const RESULT_NAMES = {
+  zh: RESULT_NAMES_ZH,
+  en: ['3AM Practice Room','Paint Me Naked','The 4th L','Before the Candle','Unfinished Paint','The 7th Call'],
+  ko: ['새벽 3시 연습실','Paint Me Naked','네 번째 L','촛불 앞에서','마르지 않은 물감','일곱 번째 전화'],
+  th: ['ห้องซ้อมตี 3','Paint Me Naked','L ที่สี่','ก่อนเทียน','สีที่ยังไม่แห้ง','สายโทรศัพท์สายที่ 7']
+};
+const RESULT_EMOJIS = ['🌙','🎨','💜','🕯️','🖌️','📞'];
+
+function t(key) { return _T[key] ? (_T[key][_lang] || _T[key].zh) : key; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var k = el.getAttribute('data-i18n');
+    var v = t(k);
+    if (v) el.textContent = v;
+  });
+  document.getElementById('lang-sel').value = _lang;
+  document.title = '10BTI ' + (_lang === 'zh' ? '数据看板' : _lang === 'en' ? 'Dashboard' : _lang === 'ko' ? '대시보드' : 'แดชบอร์ด');
+  // Update time text with translated prefix
+  var timeEl = document.getElementById('update-time');
+  if (timeEl && window._updateTimestamp) {
+    var localeStr = _lang === 'zh' ? 'zh-CN' : _lang === 'ko' ? 'ko-KR' : _lang === 'th' ? 'th-TH' : 'en-US';
+    timeEl.textContent = t('updated') + ' ' + window._updateTimestamp.toLocaleString(localeStr);
+  }
+}
+
+function switchLang(lang) {
+  _lang = lang;
+  applyLang();
+  // 重新渲染图表以更新标签
+  if (window._dashboardData) renderDashboard(window._dashboardData);
+}
+const RESULT_COLORS = [
+  'rgba(196,132,252,0.65)',
+  'rgba(168,85,247,0.65)',
+  'rgba(216,180,254,0.65)',
+  'rgba(139,92,246,0.65)',
+  'rgba(232,200,255,0.65)',
+  'rgba(124,58,237,0.65)'
+];
+const LANG_NAMES = { zh: '中文', en: 'English', ko: '한국어', th: 'ไทย' };
+const LANG_COLORS = [
+  'rgba(196,132,252,0.7)',
+  'rgba(216,180,254,0.7)',
+  'rgba(167,139,250,0.7)',
+  'rgba(139,92,246,0.7)'
+];
+
+async function sbGet(query) {
+  const res = await fetch(SB_URL + query, {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function countBy(arr, key) {
+  const m = {};
+  arr.forEach(r => { const v = r[key] || '未知'; m[v] = (m[v] || 0) + 1; });
+  return m;
+}
+
+function buildDaily(arr) {
+  const m = {};
+  arr.forEach(r => { const d = (r.created_at || '').slice(0, 10); if (d) m[d] = (m[d] || 0) + 1; });
+  return Object.entries(m).sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Build custom legend for pie charts
+function buildPieLegend(containerId, labels, values, colors, total) {
+  const box = document.getElementById(containerId);
+  box.innerHTML = '';
+  labels.forEach((label, i) => {
+    const pct = total ? (values[i] / total * 100).toFixed(1) : 0;
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-dot" style="background:${colors[i]}"></span><span>${label}</span><span class="val">${values[i]} (${pct}%)</span>`;
+    box.appendChild(item);
+  });
+}
+
+// Store chart instances for destroy on re-render
+var _charts = [];
+
+async function init() {
+  // 串行请求避免某些浏览器的并发限制
+  var lastError = '';
+  var quizCompletes = await sbGet('?event=eq.quiz_complete&select=result_key,lang,ua,ref,created_at&order=created_at.desc').catch(function(e) { console.error('qc:', e); lastError = e.message; return []; });
+  var quizStarts = await sbGet('?event=eq.quiz_start&select=ua,created_at&order=created_at.desc').catch(function(e) { console.error('qs:', e); lastError = e.message; return []; });
+  var comments = await sbGet('?event=eq.comment&select=result_key,lang,message,created_at&order=created_at.desc&limit=50').catch(function(e) { console.error('cm:', e); lastError = e.message; return []; });
+  var pageViews = await sbGet('?event=eq.page_view&select=ua,created_at&order=created_at.desc&limit=5000').catch(function(e) { console.error('pv:', e); lastError = e.message; return []; });
+
+  if (!quizCompletes.length && !quizStarts.length && !comments.length && !pageViews.length && lastError) {
+    throw new Error(t('error_load') + lastError);
+  }
+
+  // Header stats
+  var pvCount = pageViews.length;
+  var now = new Date();
+  var todayUTC8 = new Date(now.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+  var todayPV = pageViews.filter(function(r) { return (r.created_at || '').slice(0, 10) === todayUTC8; }).length;
+  var uniqueUsers = new Set(pageViews.map(function(r) { return r.ua; }).filter(Boolean)).size;
+  var startUAs = new Set(quizStarts.map(function(r) { return r.ua; }).filter(Boolean));
+  var completeUAs = new Set(quizCompletes.map(function(r) { return r.ua; }).filter(Boolean));
+  var bothCount = Array.from(startUAs).filter(function(ua) { return completeUAs.has(ua); }).length;
+  var totalTests = new Set(quizCompletes.map(function(r) { return (r.ua || '') + '||' + (r.result_key || ''); })).size;
+  var rate = startUAs.size ? (bothCount / startUAs.size * 100).toFixed(1) + '%' : '-';
+
+  var dd = { pvCount: pvCount, todayPV: todayPV, uniqueUsers: uniqueUsers, totalTests: totalTests, rate: rate, commentsCount: comments.length, quizCompletes: quizCompletes, quizStarts: quizStarts, pageViews: pageViews, comments: comments };
+  window._dashboardData = dd;
+
+  document.getElementById('s-pv').textContent = pvCount;
+  document.getElementById('s-today').textContent = todayPV;
+  document.getElementById('s-users').textContent = uniqueUsers;
+  document.getElementById('s-total').textContent = totalTests;
+  document.getElementById('s-rate').textContent = rate;
+  document.getElementById('s-comments').textContent = comments.length;
+  var localeStr = _lang === 'zh' ? 'zh-CN' : _lang === 'ko' ? 'ko-KR' : _lang === 'th' ? 'th-TH' : 'en-US';
+  window._updateTimestamp = new Date();
+  document.getElementById('update-time').textContent = t('updated') + ' ' + window._updateTimestamp.toLocaleString(localeStr);
+
+  renderDashboard(dd);
+}
+
+function renderDashboard(dd) {
+  var quizCompletes = dd.quizCompletes;
+  var pageViews = dd.pageViews;
+  var comments = dd.comments;
+  var curNames = RESULT_NAMES[_lang] || RESULT_NAMES.zh;
+
+  // Destroy old charts
+  _charts.forEach(function(c) { c.destroy(); });
+  _charts = [];
+
+  // Build DOM if not exists
+  var app = document.getElementById('app');
+  app.classList.remove('loading');
+  if (!document.getElementById('c-result')) {
+    app.innerHTML =
+      '<div class="grid">' +
+        '<div class="card"><h2 data-i18n="chart_result">' + t('chart_result') + '</h2><div class="pie-row"><div class="chart-box"><canvas id="c-result"></canvas></div><div class="legend-box" id="lg-result"></div></div></div>' +
+        '<div class="card"><h2 data-i18n="chart_lang">' + t('chart_lang') + '</h2><div class="pie-row"><div class="chart-box"><canvas id="c-lang"></canvas></div><div class="legend-box" id="lg-lang"></div></div></div>' +
+        '<div class="card full"><h2 data-i18n="chart_trend">' + t('chart_trend') + '</h2><div class="chart-wrap" style="height:220px"><canvas id="c-trend"></canvas></div></div>' +
+        '<div class="card"><h2 data-i18n="chart_ref">' + t('chart_ref') + '</h2><div class="chart-wrap" style="height:240px"><canvas id="c-ref"></canvas></div></div>' +
+        '<div class="card"><h2 data-i18n="chart_msg">' + t('chart_msg') + '</h2><div style="max-height:390px;overflow-y:auto"><table class="comments-table"><thead><tr><th data-i18n="th_time">' + t('th_time') + '</th><th data-i18n="th_result">' + t('th_result') + '</th><th data-i18n="th_message">' + t('th_message') + '</th></tr></thead><tbody id="tb-comments"></tbody></table></div></div>' +
+      '</div>';
+  }
+
+  // Update chart titles
+  var cardTitles = ['chart_result','chart_lang','chart_trend','chart_ref','chart_msg','th_time','th_result','th_message'];
+  cardTitles.forEach(function(k) {
+    var el = document.querySelector('[data-i18n="' + k + '"]');
+    if (el) el.textContent = t(k);
+  });
+
+  // 1. Result distribution — count by result_key (always ZH), then display via curNames
+  var rc = countBy(quizCompletes, 'result_key');
+  var rLabels = [], rVals = [], rColors = [];
+  RESULT_NAMES_ZH.forEach(function(zhName, idx) {
+    var cnt = rc[zhName];
+    if (cnt) {
+      rLabels.push(RESULT_EMOJIS[idx] + ' ' + (curNames[idx] || zhName));
+      rVals.push(cnt);
+      rColors.push(RESULT_COLORS[idx]);
+    }
+  });
+  var rTotal = rVals.reduce(function(a, b) { return a + b; }, 0);
+  buildPieLegend('lg-result', rLabels, rVals, rColors, rTotal);
+  _charts.push(new Chart(document.getElementById('c-result'), {
+    type: 'doughnut',
+    data: { labels: rLabels, datasets: [{ data: rVals, backgroundColor: rColors, borderWidth: 0, hoverOffset: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { var tot = c.dataset.data.reduce(function(a,b){return a+b},0); return ' ' + c.parsed + ' (' + (c.parsed/tot*100).toFixed(1) + '%)'; } } } } }
+  }));
+
+  // 2. Language distribution
+  var lc = countBy(quizCompletes, 'lang');
+  var knownLangs = Object.keys(LANG_NAMES).filter(function(k) { return lc[k]; });
+  var hasUnknown = lc['未知'];
+  var lKeys = hasUnknown ? knownLangs.concat(['未知']) : knownLangs;
+  var lVals = lKeys.map(function(k) { return lc[k]; });
+  var lTotal = lVals.reduce(function(a, b) { return a + b; }, 0);
+  var lLabels = lKeys.map(function(k) { return LANG_NAMES[k] || (k === '未知' ? t('lang_unknown') : k); });
+  var lColors = lKeys.map(function(k) { return LANG_COLORS[Object.keys(LANG_NAMES).indexOf(k)] || 'rgba(255,255,255,0.2)'; });
+  buildPieLegend('lg-lang', lLabels, lVals, lColors, lTotal);
+  _charts.push(new Chart(document.getElementById('c-lang'), {
+    type: 'doughnut',
+    data: { labels: lLabels, datasets: [{ data: lVals, backgroundColor: lColors, borderWidth: 0, hoverOffset: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  }));
+
+  // 3. Daily trend
+  var dr = buildDaily(quizCompletes);
+  var dpv = buildDaily(pageViews);
+  var dateSet = {};
+  dr.forEach(function(d) { dateSet[d[0]] = 1; });
+  dpv.forEach(function(d) { dateSet[d[0]] = 1; });
+  var allDates = Object.keys(dateSet).sort();
+  var pvMap = {}; dpv.forEach(function(d) { pvMap[d[0]] = d[1]; });
+  var trMap = {}; dr.forEach(function(d) { trMap[d[0]] = d[1]; });
+  _charts.push(new Chart(document.getElementById('c-trend'), {
+    type: 'line',
+    data: {
+      labels: allDates.map(function(d) { return d.slice(5); }),
+      datasets: [
+        { label: t('trend_pv'), data: allDates.map(function(d) { return pvMap[d] || 0; }), borderColor: 'rgba(196,132,252,0.7)', backgroundColor: 'rgba(196,132,252,0.08)', fill: true, tension: 0.4, pointRadius: 3 },
+        { label: t('trend_comp'), data: allDates.map(function(d) { return trMap[d] || 0; }), borderColor: 'rgba(244,114,182,0.7)', backgroundColor: 'rgba(244,114,182,0.08)', fill: true, tension: 0.4, pointRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: 'rgba(196,132,252,0.08)' }, ticks: { color: '#8b6aaa', font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: 'rgba(196,132,252,0.08)' }, ticks: { color: '#8b6aaa' } }
+      },
+      plugins: { legend: { labels: { color: '#d8b4fe', font: { size: 12 } } } }
+    }
+  }));
+
+  // 4. Referrer
+  var rawRefs = countBy(quizCompletes, 'ref');
+  var refGroups = {};
+  Object.keys(rawRefs).forEach(function(k) {
+    var v = rawRefs[k];
+    var label;
+    if (!k) label = t('ref_direct');
+    else if (/^https?:\/\/t\.co/i.test(k)) label = t('ref_twitter');
+    else if (/android-app:\/\/com\.google/i.test(k)) label = t('ref_google');
+    else if (/t\.co|twitter\.com|x\.com/i.test(k)) label = t('ref_twitter');
+    else if (/whimsical-halva-04746b\.netlify\.app/i.test(k)) label = t('ref_internal');
+    else if (/bilibili/i.test(k)) label = 'Bilibili';
+    else if (/weibo/i.test(k)) label = '\u5fae\u535a';
+    else if (/line\.me/i.test(k)) label = 'LINE';
+    else if (/instagram/i.test(k)) label = 'Instagram';
+    else if (/google/i.test(k)) label = t('ref_google');
+    else if (k === '未知' || k === 'null' || k === 'undefined') label = t('lang_unknown');
+    else label = k;
+    refGroups[label] = (refGroups[label] || 0) + v;
+  });
+  var refEntries = Object.entries(refGroups).sort(function(a, b) { return a[1] - b[1]; });
+  _charts.push(new Chart(document.getElementById('c-ref'), {
+    type: 'bar',
+    data: {
+      labels: refEntries.map(function(e) { return e[0]; }),
+      datasets: [{ data: refEntries.map(function(e) { return e[1]; }), backgroundColor: 'rgba(196,132,252,0.35)', borderColor: 'rgba(196,132,252,0.6)', borderWidth: 1, borderRadius: 4 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      scales: {
+        x: { beginAtZero: true, grid: { color: 'rgba(196,132,252,0.08)' }, ticks: { color: '#8b6aaa' } },
+        y: { grid: { display: false }, ticks: { color: '#d8b4fe', font: { size: 12 } } }
+      },
+      plugins: { legend: { display: false } }
+    }
+  }));
+
+  // 5. Comments
+  var tbody = document.getElementById('tb-comments');
+  tbody.innerHTML = '';
+  comments.forEach(function(c) {
+    var tr = document.createElement('tr');
+    var dt = (c.created_at || '').slice(0, 10);
+    var tm = (c.created_at || '').slice(11, 16);
+    var rk = c.result_key || '-';
+    var zhIdx = RESULT_NAMES_ZH.indexOf(rk);
+    var displayRk = (zhIdx >= 0 && curNames[zhIdx]) ? curNames[zhIdx] : rk;
+    tr.innerHTML =
+      '<td class="time-cell"><div class="date-line">' + dt + '</div><div>' + tm + '</div></td>' +
+      '<td class="result-cell"><span class="result-badge" style="background:' + (RESULT_COLORS[zhIdx] || 'rgba(255,255,255,0.2)') + '">' + displayRk + '</span></td>' +
+      '<td class="msg-cell">' + escapeHtml(c.message || '-') + '</td>';
+    tbody.appendChild(tr);
+  });
+
+  applyLang();
+}
+
+init().then(function() {
+  console.log('Dashboard loaded OK');
+}).catch(function(err) {
+  document.getElementById('app').innerHTML = '<div class="error">' + t('error_load') + err.message + t('error_hint') + '</div>';
+  console.error('Init error:', err);
+});
+</script>
+
+</body>
+</html>
